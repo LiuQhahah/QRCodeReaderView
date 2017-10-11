@@ -1,2 +1,2 @@
-include ':samples', ':navigationtabbar'
+include ':samples'
 include ':qrcodereaderview'

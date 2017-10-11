@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+<!--
     <declare-styleable name="NavigationTabBar">
         <attr name="ntb_titled" format="boolean"/>
         <attr name="ntb_badged" format="boolean"/>
@@ -38,6 +38,6 @@
         <attr name="ntb_bg_color" format="color"/>
 
         <attr name="ntb_preview_colors" format="reference"/>
-    </declare-styleable>
+    </declare-styleable>-->
 
 </resources>

@@ -1,337 +1,209 @@
 package com.example.qr_readerexample.activity;
 
-import android.app.Activity;
-import android.database.Cursor;
-import android.graphics.Color;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.example.qr_readerexample.App;
 import com.example.qr_readerexample.R;
+import com.example.qr_readerexample.base.BaseActivity;
+import com.example.qr_readerexample.base.BaseFragment;
+import com.example.qr_readerexample.utils.StatusBarUtil;
+import com.example.qr_readerexample.utils.ToastHelper;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import butterknife.BindString;
+import butterknife.BindView;
 import db.DataBaseHelper;
-import edu.njupt.liuq.navigationtabbar.library.ntb.NavigationTabBar;
-import lecho.lib.hellocharts.gesture.ContainerScrollType;
-import lecho.lib.hellocharts.model.Axis;
-import lecho.lib.hellocharts.model.AxisValue;
-import lecho.lib.hellocharts.model.Column;
-import lecho.lib.hellocharts.model.ColumnChartData;
-import lecho.lib.hellocharts.model.Line;
-import lecho.lib.hellocharts.model.LineChartData;
-import lecho.lib.hellocharts.model.PointValue;
-import lecho.lib.hellocharts.model.SubcolumnValue;
-import lecho.lib.hellocharts.model.ValueShape;
-import lecho.lib.hellocharts.model.Viewport;
-import lecho.lib.hellocharts.view.ColumnChartView;
-import lecho.lib.hellocharts.view.LineChartView;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends BaseActivity {
 
-    static DataBaseHelper myDb;
 
-    String[] chartLabels = {"A0", "A1"};
+    @BindString(R.string.app_exit)
+    String app_exit;
+    @BindView(R.id.main_tab_real_data)
+    View tabRealData;
+    @BindView(R.id.main_tab_history_data)
+    View tabHisData;
+    @BindView(R.id.main_tab_qr)
+    View tabQr;
+
+
+    private final int[] mTabIcons = new int[]{R.drawable.tab_main_home_selector,
+            R.drawable.tab_main_data_selector, R.drawable.tab_main_energy_selector};
+
+    private long mExitTime;
+    // 当前fragment的index
+    private int currentTabIndex = 0;
+    private View[] mTabs;
     private static final String TAG = "MainActivity";
     public static long endTime;
+    static DataBaseHelper myDb;
+
+
+    private RealDataFragment realdataFragment;
+    private HistoryFragment historyFragment;
+    private QRFragment qrFragment;
+
+
+
+    protected BaseFragment currentFragment;
+
+
+
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    protected int getContentViewId() {
+        return R.layout.activity_main;
+    }
+
+    @Override
+    protected void initViewsAndEvents(Bundle savedInstanceState) {
+        StatusBarUtil.darkMode(this);
+
+        Log.i(TAG,"app_exit "+app_exit);
+
         endTime = System.currentTimeMillis(); //获取结束时间
         Log.i(TAG, "程序运行时间： " + (endTime - SplashActivity.startTime) + "ms");
+
+        realdataFragment = new RealDataFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.main_content, realdataFragment).commitAllowingStateLoss();
+        currentFragment = realdataFragment;
+        currentTabIndex = 0;
+
+        initTabs();
+        changeFragment(currentTabIndex);
+    }
+
+
+    /**
+     * 初始化底部4个导航按钮
+     */
+
+    private void initTabs() {
         myDb = new DataBaseHelper(this);
-        initUI();
+
+        mTabs = new View[]{tabRealData, tabHisData,tabQr};
+        String[] mTabTitles = getResources().getStringArray(R.array.main_tab_titles);
+        boolean booleen =mTabs[0].isSelected();
+        mTabs[0].setSelected(true);
+
+        for (int i = 0; i < mTabs.length; i++) {
+            initTab(i, mTabTitles[i], mTabIcons[i]);
+        }
 
     }
 
-    private void initUI() {
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.vp_horizontal_ntb);
 
-        viewPager.setAdapter(new PagerAdapter() {
+    /**
+     * 初始化单个导航布局
+     *
+     * @param position  位置
+     * @param mTabTitle 标题
+     * @param mTabIcon  按钮Res
+     */
+    private void initTab(final int position, String mTabTitle, int mTabIcon) {
+        View tab = mTabs[position];
+
+        ImageView tab_icon_iv = (ImageView) tab.findViewById(R.id.tab_icon_iv);
+        TextView tab_title_tv = (TextView) tab.findViewById(R.id.tab_title_tv);
+
+        tab_icon_iv.setImageResource(mTabIcon);
+        tab_title_tv.setText(mTabTitle);
+        mTabs[position].setOnClickListener(new View.OnClickListener() {
             @Override
-            public int getCount() {
-                return 3;
-            }
-
-            @Override
-            public boolean isViewFromObject(final View view, final Object object) {
-                return view.equals(object);
-            }
-
-            @Override
-            public void destroyItem(final View container, final int position, final Object object) {
-                ((ViewPager) container).removeView((View) object);
-            }
-
-
-            //实例化条目，即添加元素样式
-            @Override
-            public Object instantiateItem(final ViewGroup container, final int position) {
-                View view0 = null;
-                switch (position) {
-                    case 0:
-                        container.removeAllViews();
-                        view0 = LayoutInflater.from(
-                                getBaseContext()).inflate(R.layout.content_real_data, null, false);
-                        container.addView(view0);
-
-                        drawLine();
-                        drawChart();
-                        break;
-                    case 1:
-                        container.removeAllViews();
-                        view0 = LayoutInflater.from(
-                                getBaseContext()).inflate(R.layout.content_history_data, null, false);
-                        container.addView(view0);
-                        break;
-                    case 2:
-                        container.removeAllViews();
-                        view0 = LayoutInflater.from(
-                                getBaseContext()).inflate(R.layout.content_qr, null, false);
-                        container.addView(view0);
-                        break;
-
-                }
-
-
-                return view0;
-            }
-
-        });
-
-
-        final String[] colors = getResources().getStringArray(R.array.default_preview);
-
-        final NavigationTabBar navigationTabBar = (NavigationTabBar) findViewById(R.id.ntb_horizontal);
-        final ArrayList<NavigationTabBar.Model> models = new ArrayList<>();
-        models.add(
-                new NavigationTabBar.Model.Builder(
-                        getResources().getDrawable(R.drawable.ic_first),
-                        Color.parseColor(colors[0]))
-                        .selectedIcon(getResources().getDrawable(R.drawable.ic_sixth))
-                        .title("实时数据")
-                        //.badgeTitle("NTB")角标
-                        .build()
-
-        );
-        models.add(
-                new NavigationTabBar.Model.Builder(
-                        getResources().getDrawable(R.drawable.ic_second),
-                        Color.parseColor(colors[1]))
-                        .selectedIcon(getResources().getDrawable(R.drawable.ic_eighth))
-                        .title("历史数据")
-                        //.badgeTitle("with")角标
-                        .build()
-        );
-        models.add(
-                new NavigationTabBar.Model.Builder(
-                        getResources().getDrawable(R.drawable.ic_third),
-                        Color.parseColor(colors[2]))
-                        .selectedIcon(getResources().getDrawable(R.drawable.ic_seventh))
-                        .title("扫描设备")
-                        //.badgeTitle("state")角标
-                        .build()
-        );
-
-        navigationTabBar.setModels(models);
-        navigationTabBar.setViewPager(viewPager, 0);
-        navigationTabBar.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(final int position, final float positionOffset, final int positionOffsetPixels) {
-            }
-
-            @Override
-            public void onPageSelected(final int position) {
-
-                navigationTabBar.getModels().get(position).hideBadge();
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(final int state) {
-
+            public void onClick(View v) {
+                changeFragment(position);
             }
         });
 
-        navigationTabBar.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < navigationTabBar.getModels().size(); i++) {
-                    final NavigationTabBar.Model model = navigationTabBar.getModels().get(i);
-                    navigationTabBar.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            model.showBadge();
-                        }
-                    }, i * 100);
+    }
+
+    private void changeFragment(int position) {
+        for (int i = 0; i < mTabs.length; i++) {
+            mTabs[i].setSelected(i == position);
+        }
+        switch (position) {
+            case 0:
+                if (realdataFragment == null) {
+                    realdataFragment = new RealDataFragment();
                 }
-            }
-        }, 500);
+                addOrShowFragment(getSupportFragmentManager().beginTransaction(), realdataFragment);
+                break;
+            case 1:
+                if (historyFragment == null) {
+                    historyFragment = new HistoryFragment();
+                }
+                addOrShowFragment(getSupportFragmentManager().beginTransaction(), historyFragment);
+                break;
+            case 2:
+                if (qrFragment == null) {
+                    qrFragment = new QRFragment();
+                }
+                addOrShowFragment(getSupportFragmentManager().beginTransaction(), qrFragment);
+                break;
+
+        }
+        currentTabIndex = position;
     }
 
 
-    private void drawChart() {
 
 
-        String[] chartUnits = {" ", "%"};
-        int[] chartColors = new int[]{getResources().getColor(R.color.color_FE5E63), getResources().getColor(R.color.color_6CABFA)};
+    /**
+     * 添加或者显示 fragment
+     *
+     * @param transaction
+     * @param fragment
+     */
+    protected void addOrShowFragment(FragmentTransaction transaction, Fragment fragment) {
+        if (currentFragment == fragment)
+            return;
 
-        int numColumns = chartLabels.length;
-        //columnChartView.setZoomEnabled(false);
-
-        // Column can have many subcolumns, here by default I use 1 subcolumn in each of 8 columns.
-        List<Column> columns = new ArrayList<Column>();
-        List<SubcolumnValue> values;
-        List<AxisValue> axisValues = new ArrayList<AxisValue>();
-        for (int i = 0; i < numColumns; ++i) {
-            values = new ArrayList<SubcolumnValue>();
-            //int height = (int) (Math.random() * 50) + 5;
-            float aver = myDb.aver(chartLabels[i]);
-            values.add(new SubcolumnValue(aver, chartColors[i]).setLabel(aver +
-                    chartUnits[i]));
-
-            Column column = new Column(values);
-            column.setHasLabels(true);
-            // column.setHasLabelsOnlyForSelected(hasLabelForSelected);
-            columns.add(column);
-            axisValues.add(new AxisValue(i).setLabel(chartLabels[i]));
+        if (!fragment.isAdded()) { // 如果当前fragment未被添加，则添加到Fragment管理器中
+            transaction.hide(currentFragment).add(R.id.main_content, fragment).commitAllowingStateLoss();
+        } else {
+            transaction.hide(currentFragment).show(fragment).commitAllowingStateLoss();
         }
-
-
-        ColumnChartData data = new ColumnChartData(columns);
-
-        // value.
-        Axis axisx = new Axis(axisValues);
-        axisx.setTextColor(getResources().getColor(R.color.color_323232));
-        axisx.setTextSize(13);
-        axisx.setHasLines(false);
-        axisx.setHasSeparationLine(false);
-        data.setAxisXBottom(axisx);
-        data.setFillRatio(0.5f);
-//        Axis axisY = new Axis().setHasLines(true);
-//        data.setAxisYLeft(axisY);
-        //data.setAxisXBottom(null);
-        ColumnChartView columnChartView = (ColumnChartView) findViewById(R.id.chart);
-        columnChartView.setInteractive(false);
-        columnChartView.setColumnChartData(data);
-        columnChartView.setViewportCalculationEnabled(false);
-        final Viewport v = new Viewport(columnChartView.getMaximumViewport());
-        v.bottom = 0;
-        v.top = 65;
-        v.left = -0.5f;
-        v.right = numColumns - 1 + 0.5f;
-        columnChartView.setMaximumViewport(v);
-        columnChartView.setCurrentViewport(v);
+        currentFragment = (BaseFragment) fragment;
     }
 
 
-    private void drawLine() {
-        String[] lineLabels = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
-        int[] chartColors = new int[]{getResources().getColor(R.color.color_FE5E63), getResources().getColor(R.color.color_6CABFA)};
-        int maxNumberOfLines = 2;
-        int numberOfPoints = lineLabels.length;
-        ValueShape shape = ValueShape.CIRCLE;
-        int[][] randomNumbersTab = new int[maxNumberOfLines][numberOfPoints];
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
 
-        //设置数据的数值信息
-        for (int i = 0; i < maxNumberOfLines; i++) {
-
-            Cursor res = myDb.getValue(chartLabels[i], numberOfPoints);
-            int j = 0;
-            while (res.moveToNext()) {
-                randomNumbersTab[i][j] = Integer.valueOf(res.getString(0));
-                Log.i(TAG, "res.getCount():" + res.getCount() + "   numberOfPoints:" + numberOfPoints + " getString ()" + res.getString(0));
-                j++;
+            if (System.currentTimeMillis() - mExitTime > 2000) {
+                ToastHelper.shortToast(this, app_exit);
+                mExitTime = System.currentTimeMillis();
+                return true;
+            } else {
+                App.getInstance().exit();
+                System.exit(0);
+                //android.os.Process.killProcess(android.os.Process.myPid());
             }
-            //randomNumbersTab[i][j] = (float) Math.random() * 100f;
-
         }
+        return super.onKeyDown(keyCode, event);
+    }
 
 
-        List<Line> lines = new ArrayList<Line>();
-        List<AxisValue> axisValues = new ArrayList<AxisValue>();
-        for (int i = 0; i < maxNumberOfLines; ++i) {
-            List<PointValue> values = new ArrayList<PointValue>();
-            for (int j = 0; j < numberOfPoints; ++j) {
-                values.add(new PointValue(j, randomNumbersTab[i][j]));
-            }
-            Line line = new Line(values);
-            line.setColor(chartColors[i]);
-            line.setShape(shape);
-            line.setPointRadius(3);
-            line.setStrokeWidth(1);
-            line.setCubic(false);
-            line.setFilled(false);
-            line.setHasLabels(false);
-            line.setHasLabelsOnlyForSelected(true);
-            line.setHasLines(true);
-            line.setHasPoints(true);
-            //line.setPointColor(R.color.transparent);
-            //line.setHasGradientToTransparent(true);
-//            if (pointsHaveDifferentColor){
-//                line.setPointColor(ChartUtils.COLORS[(i + 1) % ChartUtils.COLORS.length]);
-//            }
-            lines.add(line);
 
-        }
-
-        LineChartData data = new LineChartData(lines);
-        for (int i = 0; i < chartLabels.length; i++) {
-
-            Cursor res = myDb.getTime(chartLabels[i], numberOfPoints);
-            int j = 0;
-            while (res.moveToNext()) {
-
-                String time = String.valueOf(res.getString(0));
-                String a[] = time.split(" ");
-                lineLabels[j] = a[1];
-                Log.i(TAG, "lineLabels [" + j + "]:" + lineLabels[j]);
-                j++;
-            }
-            //将时间数组的值赋值到x轴上
-            for (int n = 0; n < lineLabels.length; n++) {
-                axisValues.add(new AxisValue(n).setLabel(lineLabels[n]));
-            }
-
-        }
-
-        Axis axisX = new Axis(axisValues).setMaxLabelChars(5);
-        axisX.setTextColor(getResources().getColor(R.color.color_969696))
-                .setTextSize(10).setLineColor(getResources().getColor(R.color.color_e6e6e6));
-        data.setAxisXBottom(axisX);
-        Axis axisY = new Axis().setHasLines(true).setHasSeparationLine(false).setMaxLabelChars(3);
-        axisY.setTextColor(getResources().getColor(R.color.color_969696));
-        axisY.setTextSize(10);
-        data.setAxisYLeft(axisY);
-        data.setBaseValue(Float.NEGATIVE_INFINITY);
-
-        LineChartView lineChartView = (LineChartView) findViewById(R.id.lineView);
-        //lineChartView.setZoomEnabled(false);
-        lineChartView.setScrollEnabled(true);
-        lineChartView.setContainerScrollEnabled(true, ContainerScrollType.HORIZONTAL);
-        lineChartView.setValueSelectionEnabled(true);//点击折线点可以显示label
-        lineChartView.setLineChartData(data);
-        // Reset viewport height range to (0,100)
-        lineChartView.setViewportCalculationEnabled(false);
-        //让布局能够水平滑动要设置setCurrentViewport比setMaximumViewport小
-        final Viewport v = new Viewport(lineChartView.getMaximumViewport());
-        v.bottom = 0;
-        v.top = 105;
-        v.left = 0;
-        v.right = numberOfPoints - 1 + 0.5f;
-        lineChartView.setMaximumViewport(v);
-        v.left = 0;
-        v.right = Math.min(6, numberOfPoints - 1 + 0.5f);
-        lineChartView.setCurrentViewport(v);
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }

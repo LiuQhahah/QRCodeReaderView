@@ -16,4 +16,13 @@
         <item name="android:windowBackground">@drawable/background_splash</item>
     </style>
 
+    <style name="divider_line">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/divider_line_height</item>
+        <item name="android:background">@color/uthing_color_e0e0e0</item>
+    </style>
+
+    <style name="WaveStyle">
+        <item name="android:background">@color/transparent</item>
+    </style>
 </resources>

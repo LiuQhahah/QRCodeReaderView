@@ -1,25 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:background="@color/White"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <android.support.v4.view.ViewPager
-        android:id="@+id/vp_horizontal_ntb"
+
+    <FrameLayout
+        android:id="@+id/main_content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
-    <edu.njupt.liuq.navigationtabbar.library.ntb.NavigationTabBar
-        android:id="@+id/ntb_horizontal"
+        android:layout_weight="3"/>
+
+    <View style="@style/divider_line"/>
+
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        app:ntb_badge_gravity="top"
-        app:ntb_badge_position="right"
-        app:ntb_badged="true"
-        app:ntb_scaled="true"
-        app:ntb_tinted="true"
-        app:ntb_title_mode="all"
-        app:ntb_titled="true"
-        app:ntb_swiped="true"/>
+        android:layout_height="@dimen/main_tab_height"
+        android:background="@android:color/white"
+        android:orientation="horizontal">
+
+        <include
+            android:id="@+id/main_tab_real_data"
+            layout="@layout/item_main_tab"/>
+
+        <include
+            android:id="@+id/main_tab_history_data"
+            layout="@layout/item_main_tab"/>
+        <include
+            android:id="@+id/main_tab_qr"
+            layout="@layout/item_main_tab"/>
+
+    </LinearLayout>
 
 </LinearLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="divider_line_height">0.5dp</dimen>
+
+    <!-- 提醒类文字-->
+    <dimen name="font_size_12">12sp</dimen>
+    <dimen name="padding_top">0dp</dimen>
+    <!-- main -->
+    <dimen name="main_tab_height">60dp</dimen>
+</resources>

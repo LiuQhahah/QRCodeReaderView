@@ -335,7 +335,7 @@ public class DecoderActivity extends AppCompatActivity
             j++;
         }
 
-        lineChart = (LineChartView)findViewById(R.id.line_chart);
+        lineChart = (LineChartView)findViewById(R.id.lineView);
         getAxisXLables();//获取x轴的的数据
         getAxisPoints();//获取坐标点
         initLineChart(tablename,"value");//初始化

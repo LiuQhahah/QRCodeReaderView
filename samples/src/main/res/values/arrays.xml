@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="main_tab_titles">
+    <item>实时数据</item>
+    <item>历史数据</item>
+    <item>扫描设备</item>
+
+    </string-array>
+</resources>

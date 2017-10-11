@@ -11,15 +11,8 @@
     android:layout_marginBottom="10dp"
     android:layout_marginStart="10dp"
     android:background="@color/gray">
-    <com.dlazaro66.qrcodereaderview.QRCodeReaderView
-        android:id="@+id/qrdecoderview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+   <include
 
-    <com.example.qr_readerexample.PointsOverlayView
-        android:id="@+id/points_overlay_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-         />
+       layout="@layout/content_qrview"/>
+
 </LinearLayout>
