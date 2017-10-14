@@ -8,4 +8,20 @@
     <dimen name="padding_top">0dp</dimen>
     <!-- main -->
     <dimen name="main_tab_height">60dp</dimen>
+
+
+    <!-- 一级标题-->
+    <dimen name="font_size_18">18sp</dimen>
+    <!-- 二级标题-->
+    <dimen name="font_size_16">16sp</dimen>
+
+    <!-- 用于正文文字-->
+    <color name="uthing_color_666666">#666666</color>
+
+    <!-- 用于普通级段落信息、引导词、正文标题-->
+    <color name="uthing_color_333333">#333333</color>
+
+    <!-- 页面左右边距-->
+    <dimen name="page_margin">10dp</dimen>
+
 </resources>

@@ -28,6 +28,9 @@
     <color name="color_3c3c3c">#3c3c3c</color>
     <color name="color_e6e6e6">#e6e6e6</color>
     <color name="color_67DCFF">#67DCFF</color>
+
+    <!-- 白色-->
+    <color name="white">#ffffff</color>
     <color name="color_ffa42f">#ffa42f</color>
 
     <!-- 用于分割线、分割区域描边-->

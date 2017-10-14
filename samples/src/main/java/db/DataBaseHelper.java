@@ -110,4 +110,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return aver;
     }
 
+    //得到当前值
+    public Cursor getRealData(String devicename){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res = db.rawQuery("SELECT VALUE  FROM ( SELECT * FROM "+TABLE_NAME +" where DEVICE = '"+ devicename+"' ) ORDER BY ID DESC LIMIT 1",null);
+        return res;
+    }
+
 }

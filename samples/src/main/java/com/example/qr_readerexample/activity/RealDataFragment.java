@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.example.qr_readerexample.R;
 import com.example.qr_readerexample.base.BaseFragment;
@@ -47,7 +48,11 @@ public class RealDataFragment extends BaseFragment {
     @BindView(R.id.scroll_view)
     ScrollView scrollView;
 
+    @BindView(R.id.text)
+    TextView tv_realdata;
+
     String[] chartLabels = {"A0", "A1"};
+    String[] chartUnits = {" ", "%"};
 
     @Override
     protected int getContentViewID() {
@@ -57,14 +62,28 @@ public class RealDataFragment extends BaseFragment {
     @Override
     protected void initViewsAndEvents(View rootView, Bundle savedInstanceState) {
 
-        CommonUtils.solveScrollConflict(lineChartView,scrollView);
+        CommonUtils.solveScrollConflict(lineChartView, scrollView);
         drawLine();
         drawChart();
+        viewdata();
     }
+
+    private void viewdata() {
+        for (int i = 0; i < chartLabels.length; i++) {
+            Cursor res = myDb.getRealData(chartLabels[i]);
+
+            while (res.moveToNext()){
+                tv_realdata.append( "  "+chartLabels[i]+" : "+res.getString(0)+ chartUnits[i]+"  ");
+
+            }
+
+        }
+    }
+
     private void drawChart() {
 
 
-        String[] chartUnits = {" ", "%"};
+
         int[] chartColors = new int[]{getResources().getColor(R.color.color_FE5E63), getResources().getColor(R.color.color_6CABFA)};
 
         int numColumns = chartLabels.length;
@@ -87,7 +106,6 @@ public class RealDataFragment extends BaseFragment {
             columns.add(column);
             axisValues.add(new AxisValue(i).setLabel(chartLabels[i]));
         }
-
 
 
         ColumnChartData data = new ColumnChartData(columns);
@@ -167,22 +185,31 @@ public class RealDataFragment extends BaseFragment {
         }
 
 
-
         LineChartData data = new LineChartData(lines);
-        for (int i = 0; i < numberOfPoints; i++) {
-            axisValues.add(new AxisValue(i).setLabel(lineLabels[i]));
+
+        for (int i = 0; i < chartLabels.length; i++) {
+            Cursor res = myDb.getTime(chartLabels[i], lineLabels.length);
+            int j = 0;
+            while (res.moveToNext()) {
+                String time = res.getString(0);
+                String a[] = time.split(" ");
+                //将a[1]时分秒传给横坐标，a[0]位年月日
+                lineLabels[j] = a[1];
+                Log.i(TAG, "date [" + j + "]:" + lineLabels[j]);
+                axisValues.add(new AxisValue(j).setLabel(lineLabels[j]));
+                j++;
+            }
         }
         Axis axisX = new Axis(axisValues).setMaxLabelChars(5);
         axisX.setTextColor(getResources().getColor(R.color.color_969696))
                 .setTextSize(10).setLineColor(getResources().getColor(R.color.color_e6e6e6))
-               ;
+        ;
         data.setAxisXBottom(axisX);
         Axis axisY = new Axis().setHasLines(true).setHasSeparationLine(false).setMaxLabelChars(3);
         axisY.setTextColor(getResources().getColor(R.color.color_969696));
         axisY.setTextSize(10);
         data.setAxisYLeft(axisY);
         data.setBaseValue(Float.NEGATIVE_INFINITY);
-
 
 
         lineChartView.setZoomEnabled(false);
