@@ -22,8 +22,21 @@
           android:textSize="18sp"
           android:layout_marginRight="100dp"
           android:singleLine="true"/>
+      <ImageView
+          android:id="@+id/img_message"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:src="@drawable/icon_empty_message"
+          android:layout_centerVertical="true"
+          android:layout_alignParentRight="true"
+          android:layout_marginRight="12dp"
+          android:visibility="gone"/>
 
    </RelativeLayout>
+   <View
+       android:layout_width="match_parent"
+       android:layout_height="@dimen/divider_line_height"
+       android:background="@color/black" />
    <LinearLayout
        android:padding="10dp"
        android:layout_width="match_parent"
@@ -35,9 +48,9 @@
           android:layout_width="0dp"
           android:layout_height="match_parent"
           android:gravity="center_vertical"
-          android:hint="设置实时数据可看到的指标"
+          android:hint="时间选择"
           android:textColorHint="@color/color_969696"
-          android:layout_weight="1"
+          android:layout_weight="2"
           android:paddingLeft="10dp"
           android:textSize="15sp"
           android:textColor="@color/color_646464"
@@ -48,11 +61,28 @@
           android:background="#e6e6e6"
           android:layout_gravity="center_vertical"/>
       <TextView
-          android:id="@+id/tv_group"
+          android:id="@+id/tv_device"
           android:layout_width="0dp"
           android:layout_height="match_parent"
           android:gravity="center_vertical"
-          android:hint="所有组别"
+          android:hint="设备名"
+          android:textColorHint="@color/color_969696"
+          android:layout_weight="1"
+          android:paddingLeft="10dp"
+          android:textSize="15sp"
+          android:textColor="@color/color_646464"
+          android:drawableRight="@drawable/icon_arrow"
+          android:singleLine="true"/>
+      <View android:layout_height="25dp"
+          android:layout_width="1dp"
+          android:background="#e6e6e6"
+          android:layout_gravity="center_vertical"/>
+      <TextView
+          android:id="@+id/tv_parameter"
+          android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:gravity="center_vertical"
+          android:hint="参数名"
           android:textColorHint="@color/color_969696"
           android:layout_weight="1"
           android:paddingLeft="10dp"
@@ -61,18 +91,107 @@
           android:drawableRight="@drawable/icon_arrow"
           android:singleLine="true"/>
    </LinearLayout>
-   <com.scwang.smartrefresh.layout.SmartRefreshLayout
-       android:id="@+id/smartRefreshLayout"
-       android:layout_width="match_parent"
-       android:layout_height="match_parent">
-      <android.support.v7.widget.RecyclerView
-          android:id="@+id/recyclerview"
+   <RelativeLayout
+       android:id="@+id/re_history"
+       android:orientation="vertical" android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:background="@color/White">
+      <TextView
+          android:id="@+id/tv_heat_group"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="A0"
+          android:textColor="@color/color_323232"
+          android:textSize="17sp"
+          android:layout_marginTop="20dp"
+          android:layout_marginLeft="10dp"/>
+     <!-- <ImageView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:src="@drawable/icon_arrow"
+          android:layout_alignParentRight="true"
+          android:layout_marginTop="20dp"
+          android:paddingRight="10dp"/>-->
+      <LinearLayout
+          android:id="@+id/linear_one"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:scrollbarStyle="outsideOverlay"
-          android:paddingTop="10dp"
-          android:clipToPadding="false"
-          android:clipChildren="false"/>
-   </com.scwang.smartrefresh.layout.SmartRefreshLayout>
+          android:layout_marginLeft="10dp"
+          android:layout_marginTop="20dp"
+          android:orientation="horizontal"
+          android:layout_below="@id/tv_heat_group">
+         <TextView
+             android:id="@+id/tv_support_temp"
+             android:layout_width="0dp"
+             android:layout_height="wrap_content"
+             android:layout_weight="1"
+             android:text="平均值：23.4"
+             android:textSize="15sp"
+             android:textColor="@color/color_969696"/>
+         <TextView
+             android:id="@+id/tv_return_pressure"
+             android:layout_width="0dp"
+             android:layout_height="wrap_content"
+             android:layout_weight="1"
+             android:text="中位数：23.5℃"
+             android:textSize="15sp"
+             android:textColor="@color/color_969696"/>
+      </LinearLayout>
+      <LinearLayout
+          android:id="@+id/linear_two"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginTop="18dp"
+          android:orientation="horizontal"
+          android:layout_below="@id/linear_one"
+          android:paddingBottom="18dp">
+         <TextView
+             android:id="@+id/tv_temp_diff"
+             android:layout_width="0dp"
+             android:layout_height="wrap_content"
+             android:layout_weight="1"
+             android:text="最大值：3.4"
+             android:textSize="15sp"
+             android:textColor="@color/color_969696"/>
+         <TextView
+             android:id="@+id/tv_work_status"
+             android:layout_width="0dp"
+             android:layout_height="wrap_content"
+             android:layout_weight="1"
+             android:text="最小值：3.4"
+             android:textSize="15sp"
+             android:textColor="@color/color_969696"/>
+      </LinearLayout>
+      <View style="@style/divider_line"
+          android:layout_below="@id/linear_two"
+          android:id="@+id/divider"/>
+
+      <LinearLayout  android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/White"
+          android:orientation="vertical"
+          android:layout_below="@+id/divider"
+          android:layout_alignParentLeft="true"
+          android:layout_alignParentStart="true"
+          >
+
+         <TextView
+             android:id="@+id/tv_line_name"
+             android:layout_width="match_parent"
+             android:layout_height="41dp"
+             android:layout_marginLeft="11dp"
+             android:gravity="center_vertical"
+             android:text="历史曲线"
+             android:textColor="@color/color_323232"
+             android:textSize="16sp" />
+
+         <lecho.lib.hellocharts.view.LineChartView
+             android:id="@+id/lineView"
+             android:layout_width="match_parent"
+             android:layout_height="250dp" />
+
+      </LinearLayout>
+   </RelativeLayout>
 
 </LinearLayout>

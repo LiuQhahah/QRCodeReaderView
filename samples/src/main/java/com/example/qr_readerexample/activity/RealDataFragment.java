@@ -48,6 +48,9 @@ public class RealDataFragment extends BaseFragment {
     @BindView(R.id.scroll_view)
     ScrollView scrollView;
 
+    @BindView(R.id.tv_name)
+    TextView tvName;
+
     @BindView(R.id.text)
     TextView tv_realdata;
 
@@ -62,6 +65,7 @@ public class RealDataFragment extends BaseFragment {
     @Override
     protected void initViewsAndEvents(View rootView, Bundle savedInstanceState) {
 
+        tvName.setText("实时数据");
         CommonUtils.solveScrollConflict(lineChartView, scrollView);
         drawLine();
         drawChart();

@@ -33,7 +33,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
-        //暂停TCP通信
+        //
         startTCP();
         // Don't do this! This is just so cold launches take some time
         SystemClock.sleep(TimeUnit.SECONDS.toMillis(3));

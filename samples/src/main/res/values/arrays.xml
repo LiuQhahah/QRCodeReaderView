@@ -13,7 +13,7 @@
         <item>B</item>
 
     </string-array>
-    <string-array name="data_kind_selector">
+    <string-array name="data_parameter_selector">
         <item>0</item>
         <item>1</item>
 

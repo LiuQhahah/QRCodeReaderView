@@ -117,4 +117,23 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
+    //获取一个设备参数的最近200个值
+    public Cursor getOneHistoryValue(String device){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res2 = null;
+        //读取前20个的value数据
+        res2 = db.rawQuery("SELECT VALUE FROM  ( SELECT * FROM "+TABLE_NAME +" where DEVICE  =  '"+device+"' ) ORDER BY ID DESC LIMIT 50",null);
+
+        return res2;
+    }
+    //获取一个设备参数的最近200个值
+    public Cursor getOneHistoryTime(String device){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res2 = null;
+        //读取前20个的value数据
+        res2 = db.rawQuery("SELECT TIME FROM  ( SELECT * FROM "+TABLE_NAME +" where DEVICE  =  '"+device+"' ) ORDER BY ID DESC LIMIT 50" ,null);
+
+        return res2;
+    }
+
 }

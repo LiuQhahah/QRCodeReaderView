@@ -5,7 +5,7 @@
 
     <!-- 提醒类文字-->
     <dimen name="font_size_12">12sp</dimen>
-    <dimen name="padding_top">0dp</dimen>
+    <dimen name="padding_top">1dp</dimen>
     <!-- main -->
     <dimen name="main_tab_height">60dp</dimen>
 
