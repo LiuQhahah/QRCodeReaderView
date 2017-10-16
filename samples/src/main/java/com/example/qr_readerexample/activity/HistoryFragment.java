@@ -14,6 +14,9 @@ import com.example.qr_readerexample.R;
 import com.example.qr_readerexample.base.BaseFragment;
 import com.example.qr_readerexample.dialog.CommSigleSelectDialog;
 import com.example.qr_readerexample.dialog.SelectDateDialog;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnRefreshLoadmoreListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,11 +52,25 @@ public class HistoryFragment extends BaseFragment {
     @BindView(R.id.tv_parameter)
     TextView tvParameter;
 
-    @BindView(R.id.tv_heat_group)
-    TextView tvDevicename;
 
 
+    @BindView(R.id.device_parameter)
+    TextView tv_device_parameter;
 
+    //下拉刷新控件
+    @BindView(R.id.smartRefreshLayout)
+    SmartRefreshLayout smartRefreshLayout;
+
+
+    //最大值 ,最小值 ,平均值
+    @BindView(R.id.tv_max_value)
+    TextView tvMaxValue;
+    @BindView(R.id.tv_min_value)
+    TextView tvMinValue;
+    @BindView(R.id.tv_aver_value)
+    TextView tvAverValue;
+    @BindView(R.id.tv_new_value)
+    TextView tvNewValue;
 
 
     @BindView(R.id.tv_line_name)
@@ -91,17 +108,42 @@ public class HistoryFragment extends BaseFragment {
         tvName.setText("历史数据");
 
 
-        relativeLayout.setOnLongClickListener(new View.OnLongClickListener() {
+
+        smartRefreshLayout.setEnableLoadmore(false);
+        smartRefreshLayout.setOnRefreshLoadmoreListener(new OnRefreshLoadmoreListener() {
             @Override
-            public boolean onLongClick(View v) {
-                if (tvTime.getText() != null && tvDevice.getText() != null && tvParameter.getText() != null) {
-                    tvLineTitle.setText("近50个数据折线图 " + " 设备：" + tvDevice.getText() + "， 参数：" +
-                            tvParameter.getText());
-                    drawLine();
-                }
-                return true;
+            public void onLoadmore(RefreshLayout refreshlayout) {
+
+            }
+
+            @Override
+            public void onRefresh(final RefreshLayout refreshlayout) {
+                refreshlayout.getLayout().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (tvTime.getText() != null && tvDevice.getText() != null && tvParameter.getText() != null) {
+
+                            String device_parameter = tvDevice.getText()+""+tvParameter.getText();
+                            tvLineTitle.setText("近50个数据折线图 " + " 设备：" + tvDevice.getText() + "， 参数：" +
+                                    tvParameter.getText());
+
+                            //数据表格实现设备与参数信息
+                            tv_device_parameter.setText("设备："+tvDevice.getText()+",参数："+tvParameter.getText());
+
+
+                            tvMaxValue.setText("最大值："+myDb.getMaxValue(device_parameter));
+                            tvMinValue.setText("最小值："+myDb.getMinValue(device_parameter));
+                            tvAverValue.setText("平均值："+myDb.getAverValue(device_parameter));
+                            tvNewValue.setText("最新值:"+myDb.getNewestValue(device_parameter));
+                            drawLine();
+
+                        }
+                        refreshlayout.finishRefresh();
+                    }
+                }, 1000);
             }
         });
+
 
     }
 

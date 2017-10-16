@@ -91,13 +91,17 @@
           android:drawableRight="@drawable/icon_arrow"
           android:singleLine="true"/>
    </LinearLayout>
+   <com.scwang.smartrefresh.layout.SmartRefreshLayout
+       android:id="@+id/smartRefreshLayout"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
    <RelativeLayout
        android:id="@+id/re_history"
        android:orientation="vertical" android:layout_width="match_parent"
        android:layout_height="wrap_content"
        android:background="@color/White">
       <TextView
-          android:id="@+id/tv_heat_group"
+          android:id="@+id/device_parameter"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:text="A0"
@@ -105,13 +109,7 @@
           android:textSize="17sp"
           android:layout_marginTop="20dp"
           android:layout_marginLeft="10dp"/>
-     <!-- <ImageView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:src="@drawable/icon_arrow"
-          android:layout_alignParentRight="true"
-          android:layout_marginTop="20dp"
-          android:paddingRight="10dp"/>-->
+
       <LinearLayout
           android:id="@+id/linear_one"
           android:layout_width="match_parent"
@@ -119,9 +117,9 @@
           android:layout_marginLeft="10dp"
           android:layout_marginTop="20dp"
           android:orientation="horizontal"
-          android:layout_below="@id/tv_heat_group">
+          android:layout_below="@id/device_parameter">
          <TextView
-             android:id="@+id/tv_support_temp"
+             android:id="@+id/tv_aver_value"
              android:layout_width="0dp"
              android:layout_height="wrap_content"
              android:layout_weight="1"
@@ -129,11 +127,11 @@
              android:textSize="15sp"
              android:textColor="@color/color_969696"/>
          <TextView
-             android:id="@+id/tv_return_pressure"
+             android:id="@+id/tv_new_value"
              android:layout_width="0dp"
              android:layout_height="wrap_content"
              android:layout_weight="1"
-             android:text="中位数：23.5℃"
+             android:text="最新值：23.5℃"
              android:textSize="15sp"
              android:textColor="@color/color_969696"/>
       </LinearLayout>
@@ -147,7 +145,7 @@
           android:layout_below="@id/linear_one"
           android:paddingBottom="18dp">
          <TextView
-             android:id="@+id/tv_temp_diff"
+             android:id="@+id/tv_max_value"
              android:layout_width="0dp"
              android:layout_height="wrap_content"
              android:layout_weight="1"
@@ -155,7 +153,7 @@
              android:textSize="15sp"
              android:textColor="@color/color_969696"/>
          <TextView
-             android:id="@+id/tv_work_status"
+             android:id="@+id/tv_min_value"
              android:layout_width="0dp"
              android:layout_height="wrap_content"
              android:layout_weight="1"
@@ -193,5 +191,5 @@
 
       </LinearLayout>
    </RelativeLayout>
-
+   </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 </LinearLayout>

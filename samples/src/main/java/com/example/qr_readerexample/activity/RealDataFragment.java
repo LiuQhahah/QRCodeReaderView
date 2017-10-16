@@ -79,7 +79,6 @@ public class RealDataFragment extends BaseFragment {
         viewdata();
 
 
-
         smartRefreshLayout.setEnableLoadmore(false);
         smartRefreshLayout.setOnRefreshLoadmoreListener(new OnRefreshLoadmoreListener() {
             @Override
