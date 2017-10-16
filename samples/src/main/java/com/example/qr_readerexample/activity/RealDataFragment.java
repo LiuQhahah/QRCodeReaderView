@@ -11,6 +11,9 @@ import android.widget.TextView;
 import com.example.qr_readerexample.R;
 import com.example.qr_readerexample.base.BaseFragment;
 import com.example.qr_readerexample.utils.CommonUtils;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnRefreshLoadmoreListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +54,10 @@ public class RealDataFragment extends BaseFragment {
     @BindView(R.id.tv_name)
     TextView tvName;
 
+    //刷新控件
+    @BindView(R.id.smartRefreshLayout)
+    SmartRefreshLayout smartRefreshLayout;
+
     @BindView(R.id.text)
     TextView tv_realdata;
 
@@ -70,9 +77,35 @@ public class RealDataFragment extends BaseFragment {
         drawLine();
         drawChart();
         viewdata();
+
+
+
+        smartRefreshLayout.setEnableLoadmore(false);
+        smartRefreshLayout.setOnRefreshLoadmoreListener(new OnRefreshLoadmoreListener() {
+            @Override
+            public void onLoadmore(RefreshLayout refreshlayout) {
+
+            }
+
+            @Override
+            public void onRefresh(final RefreshLayout refreshlayout) {
+                refreshlayout.getLayout().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        drawLine();
+                        drawChart();
+                        viewdata();
+                        refreshlayout.finishRefresh();
+                    }
+                }, 1000);
+            }
+        });
+
     }
 
     private void viewdata() {
+
+       tv_realdata.setText("");
         for (int i = 0; i < chartLabels.length; i++) {
             Cursor res = myDb.getRealData(chartLabels[i]);
 

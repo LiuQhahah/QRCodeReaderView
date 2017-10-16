@@ -1,7 +1,13 @@
 package com.example.qr_readerexample.activity;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -12,10 +18,23 @@ import android.widget.TextView;
 
 import com.example.qr_readerexample.App;
 import com.example.qr_readerexample.R;
+import com.example.qr_readerexample.TcpServer;
 import com.example.qr_readerexample.base.BaseActivity;
 import com.example.qr_readerexample.base.BaseFragment;
 import com.example.qr_readerexample.utils.StatusBarUtil;
 import com.example.qr_readerexample.utils.ToastHelper;
+
+import java.lang.ref.WeakReference;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import butterknife.BindString;
 import butterknife.BindView;
@@ -52,12 +71,24 @@ public class MainActivity extends BaseActivity {
     private QRFragment qrFragment;
 
 
+    private static TcpServer tcpServer = null;
+    private static final int PORT = 9999;
+    ExecutorService exec = Executors.newCachedThreadPool();
+    private List<Activity> activityList;
+    private static App instance;
+
+    private static String sensordata;
+
+
+    private static String recvdate = null;
 
     protected BaseFragment currentFragment;
 
+    private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
+    private final MyHandler myHandler = new MyHandler(this);
 
-
-
+    @SuppressLint("StaticFieldLeak")
+    public static Context context;
 
     @Override
     protected int getContentViewId() {
@@ -68,7 +99,11 @@ public class MainActivity extends BaseActivity {
     protected void initViewsAndEvents(Bundle savedInstanceState) {
         StatusBarUtil.darkMode(this);
 
-        Log.i(TAG,"app_exit "+app_exit);
+        context = this;
+        //绑定广播接收，准备接收来自IOT2040的数据
+        bindReceiver();
+
+        Log.i(TAG, "app_exit " + app_exit);
 
         endTime = System.currentTimeMillis(); //获取结束时间
         Log.i(TAG, "程序运行时间： " + (endTime - SplashActivity.startTime) + "ms");
@@ -80,8 +115,74 @@ public class MainActivity extends BaseActivity {
 
         initTabs();
         changeFragment(currentTabIndex);
+
+
+        startTCP();
     }
 
+    private void startTCP() {
+        Log.i(TAG,"ip address is :"+getHostIP()+"\n  PORT = 9999");
+        tcpServer = new TcpServer(PORT);
+        exec.execute(tcpServer);
+    }
+
+    /**
+     * 获取ip地址
+     *
+     * @return
+     */
+    public String getHostIP() {
+
+        String hostIp = null;
+        try {
+            Enumeration nis = NetworkInterface.getNetworkInterfaces();
+            InetAddress ia = null;
+            while (nis.hasMoreElements()) {
+                NetworkInterface ni = (NetworkInterface) nis.nextElement();
+                Enumeration<InetAddress> ias = ni.getInetAddresses();
+                while (ias.hasMoreElements()) {
+                    ia = ias.nextElement();
+                    if (ia instanceof Inet6Address) {
+                        continue;// skip ipv6
+                    }
+                    String ip = ia.getHostAddress();
+                    if (!"127.0.0.1".equals(ip)) {
+                        hostIp = ia.getHostAddress();
+                        break;
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            Log.i(TAG, "SocketException");
+            e.printStackTrace();
+        }
+        Log.i(TAG,"IP ADDRESS :"+hostIp);
+        return hostIp;
+
+    }
+
+    private void bindReceiver() {
+        IntentFilter intentFilter = new IntentFilter("tcpServerReceiver");
+        registerReceiver(myBroadcastReceiver, intentFilter);
+    }
+
+    private class MyBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String mAction = intent.getAction();
+            switch (mAction) {
+                case "tcpServerReceiver":
+                    String msg = intent.getStringExtra("tcpServerReceiver");
+
+                    Message message = Message.obtain();
+                    message.what = 1;
+                    message.obj = msg;
+                    myHandler.sendMessage(message);
+                    break;
+            }
+        }
+    }
 
     /**
      * 初始化底部4个导航按钮
@@ -90,9 +191,9 @@ public class MainActivity extends BaseActivity {
     private void initTabs() {
         myDb = new DataBaseHelper(this);
 
-        mTabs = new View[]{tabRealData, tabHisData,tabQr};
+        mTabs = new View[]{tabRealData, tabHisData, tabQr};
         String[] mTabTitles = getResources().getStringArray(R.array.main_tab_titles);
-        boolean booleen =mTabs[0].isSelected();
+        boolean booleen = mTabs[0].isSelected();
         mTabs[0].setSelected(true);
 
         for (int i = 0; i < mTabs.length; i++) {
@@ -101,6 +202,64 @@ public class MainActivity extends BaseActivity {
 
     }
 
+
+    private class MyHandler extends android.os.Handler {
+        private final WeakReference<MainActivity> mActivity;
+
+        MyHandler(MainActivity activity) {
+            mActivity = new WeakReference<MainActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            MainActivity activity = mActivity.get();
+            if (activity != null) {
+                switch (msg.what) {
+                    case 1:
+                        recvdate = msg.obj.toString();
+
+                        String devidename = recvdate.substring(0, 2);
+                        Log.i(TAG, "device name :" + devidename);
+                        switch (devidename) {
+                            case "A0":
+                                sensordata = recvdate.substring(2, 3);
+                                //向数据库添加数据
+                                AddData(sensordata, "A0");
+                                //tvRecvData.setText("设备A0的数据:"+sensordata);
+                                Log.i(TAG, "A0 data is :" + sensordata);
+                                break;
+                            case "A1":
+                                sensordata = recvdate.substring(2, 4).trim();
+                                //tvRecvData.setText("设备A1的数据:"+sensordata);
+                                //向数据库添加数据
+                                AddData(sensordata, "A1");
+                                Log.i(TAG, "A1 data is :" + sensordata + "; length is " + recvdate.length());
+
+                                break;
+                            default:
+                                break;
+
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+
+    private static void AddData(String data, String devicename) {
+        String systime = getsystime();
+        boolean isInserted = myDb.insertData(systime, data, devicename);
+        if (isInserted)
+            Log.i(TAG, "Data Inserted time :" + systime + ", data :" + data + ", devicename:" + devicename);
+        else
+            Log.i(TAG, "Data not inserted");
+    }
+
+    private static String getsystime() {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return df.format(new Date());
+    }
 
     /**
      * 初始化单个导航布局
@@ -155,8 +314,6 @@ public class MainActivity extends BaseActivity {
     }
 
 
-
-
     /**
      * 添加或者显示 fragment
      *
@@ -192,7 +349,6 @@ public class MainActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
-
 
 
     @Override

@@ -3,6 +3,8 @@ package com.example.qr_readerexample;
 import android.content.Intent;
 import android.util.Log;
 
+import com.example.qr_readerexample.activity.MainActivity;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -116,7 +118,7 @@ public class TcpServer implements Runnable{
                         Intent intent =new Intent();
                         intent.setAction("tcpServerReceiver");
                         intent.putExtra("tcpServerReceiver",rcvMsg);
-                        DecoderActivity.context.sendBroadcast(intent);//将消息发送给主界面
+                        MainActivity.context.sendBroadcast(intent);//将消息发送给主界面
                         if (rcvMsg.equals("QuitServer")){
                             isRun = false;
                         }
