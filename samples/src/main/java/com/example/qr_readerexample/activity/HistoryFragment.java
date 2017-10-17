@@ -8,12 +8,14 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.qr_readerexample.R;
 import com.example.qr_readerexample.base.BaseFragment;
 import com.example.qr_readerexample.dialog.CommSigleSelectDialog;
 import com.example.qr_readerexample.dialog.SelectDateDialog;
+import com.example.qr_readerexample.utils.CommonUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnRefreshLoadmoreListener;
@@ -53,7 +55,6 @@ public class HistoryFragment extends BaseFragment {
     TextView tvParameter;
 
 
-
     @BindView(R.id.device_parameter)
     TextView tv_device_parameter;
 
@@ -87,6 +88,9 @@ public class HistoryFragment extends BaseFragment {
     @BindView(R.id.re_history)
     RelativeLayout relativeLayout;
 
+    @BindView(R.id.scroll_view)
+    ScrollView scrollView;
+
 
     public static Fragment newInstance(String status) {
         HistoryFragment fragment = new HistoryFragment();
@@ -107,7 +111,13 @@ public class HistoryFragment extends BaseFragment {
 
         tvName.setText("历史数据");
 
+        CommonUtils.solveScrollConflict(lineChartView, scrollView);
 
+        tvMaxValue.setText("最大值：" + myDb.getMaxValue("A0"));
+        tvMinValue.setText("最小值：" + myDb.getMinValue("A0"));
+        tvAverValue.setText("平均值：" + myDb.getAverValue("A0"));
+        tvNewValue.setText("最新值:" + myDb.getNewestValue("A0"));
+        drawLine();
 
         smartRefreshLayout.setEnableLoadmore(false);
         smartRefreshLayout.setOnRefreshLoadmoreListener(new OnRefreshLoadmoreListener() {
@@ -123,18 +133,18 @@ public class HistoryFragment extends BaseFragment {
                     public void run() {
                         if (tvTime.getText() != null && tvDevice.getText() != null && tvParameter.getText() != null) {
 
-                            String device_parameter = tvDevice.getText()+""+tvParameter.getText();
+                            String device_parameter = tvDevice.getText() + "" + tvParameter.getText();
                             tvLineTitle.setText("近50个数据折线图 " + " 设备：" + tvDevice.getText() + "， 参数：" +
                                     tvParameter.getText());
 
                             //数据表格实现设备与参数信息
-                            tv_device_parameter.setText("设备："+tvDevice.getText()+",参数："+tvParameter.getText());
+                            tv_device_parameter.setText("设备：" + tvDevice.getText() + ",参数：" + tvParameter.getText());
 
 
-                            tvMaxValue.setText("最大值："+myDb.getMaxValue(device_parameter));
-                            tvMinValue.setText("最小值："+myDb.getMinValue(device_parameter));
-                            tvAverValue.setText("平均值："+myDb.getAverValue(device_parameter));
-                            tvNewValue.setText("最新值:"+myDb.getNewestValue(device_parameter));
+                            tvMaxValue.setText("最大值：" + myDb.getMaxValue(device_parameter));
+                            tvMinValue.setText("最小值：" + myDb.getMinValue(device_parameter));
+                            tvAverValue.setText("平均值：" + myDb.getAverValue(device_parameter));
+                            tvNewValue.setText("最新值:" + myDb.getNewestValue(device_parameter));
                             drawLine();
 
                         }
@@ -186,7 +196,7 @@ public class HistoryFragment extends BaseFragment {
         for (int i = 0; i < numberOfPoints; ++i) {
             values.add(new PointValue(i, randomNumbersTab[i]));
 
-            Log.i(TAG,"randomNumbersTab:"+randomNumbersTab[i]);
+            Log.i(TAG, "randomNumbersTab:" + randomNumbersTab[i]);
             Line line = new Line(values);
             line.setColor(R.color.WhiteAndGreen);
             line.setShape(shape);
@@ -239,7 +249,16 @@ public class HistoryFragment extends BaseFragment {
         //让布局能够水平滑动要设置setCurrentViewport比setMaximumViewport小
         final Viewport v = new Viewport(lineChartView.getMaximumViewport());
         v.bottom = 0;
-        v.top = 105;
+        if (!tvDevice.getText().equals("")&& !tvParameter.getText().equals("") ) {
+            String device_parameter = (String) tvDevice.getText();
+            device_parameter += tvParameter.getText();
+            String max = myDb.getMaxValue(device_parameter);
+
+            v.top = Float.valueOf(max);
+        } else {
+            v.top = 5;
+        }
+
         v.left = 0;
         v.right = numberOfPoints - 1 + 0.5f;
         lineChartView.setMaximumViewport(v);

@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.example.qr_readerexample.R;
 import com.example.qr_readerexample.base.BaseActivity;
+import com.example.qr_readerexample.utils.CommonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,9 @@ public class DataTrendActivity extends BaseActivity {
 
     @Override
     protected void initViewsAndEvents(Bundle savedInstanceState) {
+
+
+        CommonUtils.solveScrollConflict(lineChartView,scrollView);
         initToobar();
         drawLine();
         drawChart();

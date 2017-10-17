@@ -2,17 +2,132 @@
 <LinearLayout
 
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
     android:layout_marginEnd="10dp"
     android:layout_marginLeft="10dp"
     android:layout_marginRight="10dp"
-    android:layout_marginBottom="10dp"
     android:layout_marginStart="10dp"
-    android:background="@color/gray">
-   <include
+    android:layout_marginTop="10dp"
+    android:background="@color/White"
+    android:orientation="vertical">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/padding_top"
+        android:background="@color/black" />
+    <RelativeLayout
 
-       layout="@layout/content_qrview"/>
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white">
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="现场扫描"
+            android:layout_centerInParent="true"
+            android:textColor="@color/color_323232"
+            android:textSize="18sp"
+            android:layout_marginRight="100dp"
+            android:singleLine="true"/>
+        <ImageView
+            android:id="@+id/img_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_empty_message"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="12dp"
+            android:visibility="gone"/>
 
+    </RelativeLayout>
+    <View style="@style/divider_line" />
+
+    <RelativeLayout
+        android:id="@+id/re_qr"
+        android:layout_weight="2"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+        <com.dlazaro66.qrcodereaderview.QRCodeReaderView
+            android:id="@+id/qrdecoderview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.example.qr_readerexample.PointsOverlayView
+            android:id="@+id/points_overlay_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+
+    </RelativeLayout>
+    <View style="@style/divider_line" />
+    <TextView
+        android:id="@+id/device_parameter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="A0"
+        android:textColor="@color/color_323232"
+        android:textSize="17sp"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp"/>
+    <LinearLayout
+        android:id="@+id/linear_one"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:layout_below="@id/device_parameter">
+        <TextView
+            android:id="@+id/tv_aver_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="平均值：23.4"
+            android:textSize="15sp"
+            android:textColor="@color/color_969696"/>
+        <TextView
+            android:id="@+id/tv_new_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="最新值：23.5℃"
+            android:textSize="15sp"
+            android:textColor="@color/color_969696"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/linear_two"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal"
+        android:layout_below="@id/linear_one"
+        android:paddingBottom="18dp">
+        <TextView
+            android:id="@+id/tv_max_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="最大值：3.4"
+            android:textSize="15sp"
+            android:textColor="@color/color_969696"/>
+        <TextView
+            android:id="@+id/tv_min_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="最小值：3.4"
+            android:textSize="15sp"
+            android:textColor="@color/color_969696"/>
+    </LinearLayout>
 </LinearLayout>

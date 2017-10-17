@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.example.qr_readerexample.R;
 import com.example.qr_readerexample.base.BaseFragment;
+import com.example.qr_readerexample.dialog.CommSigleSelectDialog;
 import com.example.qr_readerexample.utils.CommonUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import lecho.lib.hellocharts.gesture.ContainerScrollType;
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
@@ -58,8 +60,26 @@ public class RealDataFragment extends BaseFragment {
     @BindView(R.id.smartRefreshLayout)
     SmartRefreshLayout smartRefreshLayout;
 
-    @BindView(R.id.text)
-    TextView tv_realdata;
+
+    //最大值 ,最小值 ,平均值
+    @BindView(R.id.tv_max_value)
+    TextView tvMaxValue;
+    @BindView(R.id.tv_min_value)
+    TextView tvMinValue;
+    @BindView(R.id.tv_aver_value)
+    TextView tvAverValue;
+    @BindView(R.id.tv_new_value)
+    TextView tvNewValue;
+
+
+    @BindView(R.id.device_parameter)
+    TextView tv_device_parameter;
+
+    //设置选择的时间，设备名以及参数号
+    @BindView(R.id.tv_device)
+    TextView tvDevice;
+    @BindView(R.id.tv_parameter)
+    TextView tvParameter;
 
     String[] chartLabels = {"A0", "A1"};
     String[] chartUnits = {" ", "%"};
@@ -76,7 +96,6 @@ public class RealDataFragment extends BaseFragment {
         CommonUtils.solveScrollConflict(lineChartView, scrollView);
         drawLine();
         drawChart();
-        viewdata();
 
 
         smartRefreshLayout.setEnableLoadmore(false);
@@ -88,12 +107,30 @@ public class RealDataFragment extends BaseFragment {
 
             @Override
             public void onRefresh(final RefreshLayout refreshlayout) {
+
                 refreshlayout.getLayout().postDelayed(new Runnable() {
                     @Override
                     public void run() {
+
+
+                        if ( tvDevice.getText() != null && tvParameter.getText() != null) {
+
+                            String device_parameter = tvDevice.getText()+""+tvParameter.getText();
+
+
+                            //数据表格实现设备与参数信息
+                            tv_device_parameter.setText("设备："+tvDevice.getText()+",参数："+tvParameter.getText());
+
+
+                            tvMaxValue.setText("最大值："+myDb.getMaxValue(device_parameter));
+                            tvMinValue.setText("最小值："+myDb.getMinValue(device_parameter));
+                            tvAverValue.setText("平均值："+myDb.getAverValue(device_parameter));
+                            tvNewValue.setText("最新值:"+myDb.getNewestValue(device_parameter));
+                            drawLine();
+
+                        }
                         drawLine();
                         drawChart();
-                        viewdata();
                         refreshlayout.finishRefresh();
                     }
                 }, 1000);
@@ -102,18 +139,37 @@ public class RealDataFragment extends BaseFragment {
 
     }
 
-    private void viewdata() {
 
-       tv_realdata.setText("");
-        for (int i = 0; i < chartLabels.length; i++) {
-            Cursor res = myDb.getRealData(chartLabels[i]);
 
-            while (res.moveToNext()){
-                tv_realdata.append( "  "+chartLabels[i]+" : "+res.getString(0)+ chartUnits[i]+"  ");
+
+
+    @OnClick({R.id.tv_device, R.id.tv_parameter})
+    public void onClick(View v) {
+        switch (v.getId()) {
+
+            case R.id.tv_device:
+                selectSortDialog(tvDevice, getResources().getStringArray(R.array.device_selector));
+                break;
+            case R.id.tv_parameter:
+                selectSortDialog(tvParameter, getResources().getStringArray(R.array.data_parameter_selector));
+
+                break;
+        }
+    }
+
+    private void selectSortDialog(final TextView textView, String[] strs) {
+        CommSigleSelectDialog commSigleSelectDialog = new CommSigleSelectDialog(getActivity());
+        commSigleSelectDialog.setValue(strs);
+        commSigleSelectDialog.setShowCount(3);
+        commSigleSelectDialog.setWrap(true);
+        commSigleSelectDialog.setOnSelectListener(new CommSigleSelectDialog.OnSelectListener() {
+            @Override
+            public void onSelect(String str, int value) {
+                textView.setText(str);
 
             }
-
-        }
+        });
+        commSigleSelectDialog.show();
     }
 
     private void drawChart() {
