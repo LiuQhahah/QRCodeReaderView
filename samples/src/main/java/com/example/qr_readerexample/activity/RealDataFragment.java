@@ -89,8 +89,13 @@ public class RealDataFragment extends BaseFragment {
         return R.layout.content_real_data;
     }
 
+
+
+
     @Override
     protected void initViewsAndEvents(View rootView, Bundle savedInstanceState) {
+
+
 
         tvName.setText("实时数据");
         CommonUtils.solveScrollConflict(lineChartView, scrollView);

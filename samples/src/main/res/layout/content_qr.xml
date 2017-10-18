@@ -13,6 +13,7 @@
     android:background="@color/White"
     android:orientation="vertical">
     <View
+
         android:layout_width="match_parent"
         android:layout_height="@dimen/padding_top"
         android:background="@color/black" />
@@ -22,6 +23,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/white">
         <TextView
+
             android:id="@+id/tv_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -2,7 +2,6 @@ package com.example.qr_readerexample.activity;
 
 
 import android.Manifest;
-import android.content.pm.PackageManager;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -18,6 +17,7 @@ import com.example.qr_readerexample.base.BaseFragment;
 
 import butterknife.BindView;
 
+import static com.example.qr_readerexample.R.id.points_overlay_view;
 import static com.example.qr_readerexample.R.id.qrdecoderview;
 import static com.example.qr_readerexample.activity.MainActivity.myDb;
 
@@ -49,13 +49,15 @@ public class QRFragment extends BaseFragment implements
     @BindView(R.id.re_qr)
     ViewGroup reQR;
 
+
     @BindView(R.id.device_parameter)
     TextView tv_device_parameter;
 
     @BindView(qrdecoderview)
     QRCodeReaderView qrCodeReaderView;
-    @BindView(R.id.points_overlay_view)
+    @BindView(points_overlay_view)
     PointsOverlayView pointsOverlayView;
+
 
     @Override
     protected int getContentViewID() {
@@ -64,17 +66,25 @@ public class QRFragment extends BaseFragment implements
 
     @Override
     protected void initViewsAndEvents(View rootView, Bundle savedInstanceState) {
-        tv_title.setText("现场扫描");
 
+        initQRCodeReaderView();
 
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)
+      /*  if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
+            tv_title.setText("现场扫描");
             initQRCodeReaderView();
         } else {
-            requestCameraPermission();
-        }
+
+            *//*ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA},
+                    MY_PERMISSION_REQUEST_CAMERA);*//*
+            //requestCameraPermission();
+        }*/
+
 
     }
+
+
+
 
     private void requestCameraPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.CAMERA)) {
@@ -99,6 +109,8 @@ public class QRFragment extends BaseFragment implements
 
     public void initQRCodeReaderView() {
 
+
+        qrCodeReaderView.setVisibility(View.VISIBLE);
         qrCodeReaderView.setAutofocusInterval(2000L);
         qrCodeReaderView.setOnQRCodeReadListener(this);
         qrCodeReaderView.setBackCamera();

@@ -20,6 +20,8 @@ public abstract class BaseFragment extends AbsBaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if (getContentViewID() != 0) {
+
+
             return inflater.inflate(getContentViewID(), null);
         } else {
             return super.onCreateView(inflater, container, savedInstanceState);

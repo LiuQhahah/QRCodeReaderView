@@ -4,6 +4,7 @@
     <item
         android:drawable="@color/gray"/>
 
+
     <item>
         <bitmap
             android:gravity="center"

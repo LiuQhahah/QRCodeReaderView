@@ -11,5 +11,10 @@
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="app_exit">再按一次退出应用</string>
+    <string name="permission_camera_neverask">还没有请求权限</string>
+    <string name="permission_camera_denied">权限被拒绝</string>
+    <string name="button_allow">允许</string>
+    <string name="button_deny">拒绝</string>
+    <string name="permission_camera_rationale">请求摄像机权限</string>
 
 </resources>

@@ -1,13 +1,16 @@
 package com.example.qr_readerexample.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -65,7 +68,6 @@ public class MainActivity extends BaseActivity {
     public static long endTime;
     static DataBaseHelper myDb;
 
-
     private RealDataFragment realdataFragment;
     private HistoryFragment historyFragment;
     private QRFragment qrFragment;
@@ -83,6 +85,8 @@ public class MainActivity extends BaseActivity {
     private static String recvdate = null;
 
     protected BaseFragment currentFragment;
+
+    private static final int MY_PERMISSION_REQUEST_CAMERA = 0;
 
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     private final MyHandler myHandler = new MyHandler(this);
@@ -118,10 +122,19 @@ public class MainActivity extends BaseActivity {
 
 
         startTCP();
+
+
+        if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED)) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
+                    MY_PERMISSION_REQUEST_CAMERA);
+        }
+
     }
 
+
     private void startTCP() {
-        Log.i(TAG,"ip address is :"+getHostIP()+"\n  PORT = 9999");
+        Log.i(TAG, "ip address is :" + getHostIP() + "\n  PORT = 9999");
         tcpServer = new TcpServer(PORT);
         exec.execute(tcpServer);
     }
@@ -156,7 +169,7 @@ public class MainActivity extends BaseActivity {
             Log.i(TAG, "SocketException");
             e.printStackTrace();
         }
-        Log.i(TAG,"IP ADDRESS :"+hostIp);
+        Log.i(TAG, "IP ADDRESS :" + hostIp);
         return hostIp;
 
     }
@@ -342,8 +355,9 @@ public class MainActivity extends BaseActivity {
                 mExitTime = System.currentTimeMillis();
                 return true;
             } else {
-                App.getInstance().exit();
-                System.exit(0);
+                this.finish();
+                /*App.getInstance().exit();
+                System.exit(0);*/
                 //android.os.Process.killProcess(android.os.Process.myPid());
             }
         }

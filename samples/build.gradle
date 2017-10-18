@@ -35,4 +35,5 @@ dependencies {
     apt 'com.jakewharton:butterknife-compiler:8.5.1'
 
     compile 'com.orhanobut:logger:2.1.1'
+
 }
