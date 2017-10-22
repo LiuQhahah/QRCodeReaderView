@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -26,6 +27,15 @@ import com.example.qr_readerexample.base.BaseActivity;
 import com.example.qr_readerexample.base.BaseFragment;
 import com.example.qr_readerexample.utils.StatusBarUtil;
 import com.example.qr_readerexample.utils.ToastHelper;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushException;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationListener;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushResponseListener;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPSimplePushNotification;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.net.Inet6Address;
@@ -46,6 +56,9 @@ import db.DataBaseHelper;
 
 public class MainActivity extends BaseActivity {
 
+
+    private MFPPush push; // Push client
+    private MFPPushNotificationListener notificationListener; // Notification listener to handle a push sent to the phone
 
     @BindString(R.string.app_exit)
     String app_exit;
@@ -104,6 +117,48 @@ public class MainActivity extends BaseActivity {
         StatusBarUtil.darkMode(this);
 
         context = this;
+
+
+        //registerDevice();
+
+
+        /**
+         * push  set
+         */
+        // initialize core SDK with IBM Bluemix application Region, TODO: Update region if not using Bluemix US SOUTH
+        BMSClient.getInstance().initialize(this, BMSClient.REGION_US_SOUTH);
+
+        // Grabs push client sdk instance
+        push = MFPPush.getInstance();
+        // Initialize Push client
+        // You can find your App Guid and Client Secret by navigating to the Configure section of your Push dashboard, click Mobile Options (Upper Right Hand Corner)
+        // TODO: Please replace <APP_GUID> and <CLIENT_SECRET> with a valid App GUID and Client Secret from the Push dashboard Mobile Options
+        push.initialize(this, "e7043b0c-d330-43c3-8de5-3dbee9ff1dd6", "3e2cdf7b-b15c-4d51-b38a-44dfee258476");
+
+        // Create notification listener and enable pop up notification when a message is received
+        notificationListener = new MFPPushNotificationListener() {
+            @Override
+            public void onReceive(final MFPSimplePushNotification message) {
+                Log.i(TAG, "Received a Push Notification: " + message.toString());
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        new android.app.AlertDialog.Builder(MainActivity.this)
+                                .setTitle("Received a Push Notification")
+                                .setMessage(message.getAlert())
+                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                    }
+                                })
+                                .show();
+                    }
+                });
+            }
+        };
+
+
+
+        registerDevice();
+
         //绑定广播接收，准备接收来自IOT2040的数据
         bindReceiver();
 
@@ -130,6 +185,98 @@ public class MainActivity extends BaseActivity {
                     MY_PERMISSION_REQUEST_CAMERA);
         }
 
+
+    }
+
+    /**
+     * Called when the register device button is pressed.
+     * Attempts to register the device with your push service on Bluemix.
+     * If successful, the push client sdk begins listening to the notification listener.
+     * Also includes the example option of UserID association with the registration for very targeted Push notifications.
+     *
+     */
+    public void registerDevice() {
+
+        // Checks for null in case registration has failed previously
+        if(push==null){
+            push = MFPPush.getInstance();
+        }
+
+        // Make register button unclickable during registration and show registering text
+
+        Log.i(TAG, "Registering for notifications");
+
+
+        // Creates response listener to handle the response when a device is registered.
+        MFPPushResponseListener registrationResponselistener = new MFPPushResponseListener<String>() {
+            @Override
+            public void onSuccess(String response) {
+                // Split response and convert to JSON object to display User ID confirmation from the backend
+                String[] resp = response.split("Text: ");
+                //String[] resp = response.split(" : ");
+                try {
+                    JSONObject responseJSON = new JSONObject(resp[1]);
+                   Log.i (TAG,"Device Registered Successfully with USER ID " + responseJSON.getString("userId"));
+//                   Toast.makeText(context,"Device Registered Successfully with USER ID " + responseJSON.getString("userId"),Toast.LENGTH_SHORT).show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                Log.i(TAG, "Successfully registered for push notifications, " + response);
+                // Start listening to notification listener now that registration has succeeded
+                push.listen(notificationListener);
+
+            }
+
+            @Override
+            public void onFailure(MFPPushException exception) {
+                String errLog = "Error registering for push notifications: ";
+                String errMessage = exception.getErrorMessage();
+                int statusCode = exception.getStatusCode();
+
+                // Set error log based on response code and error message
+                if(statusCode == 401){
+                    errLog += "Cannot authenticate successfully with Bluemix Push instance, ensure your CLIENT SECRET was set correctly.";
+                } else if(statusCode == 404 && errMessage.contains("Push GCM Configuration")){
+                    errLog += "Push GCM Configuration does not exist, ensure you have configured GCM Push credentials on your Bluemix Push dashboard correctly.";
+                } else if(statusCode == 404 && errMessage.contains("PushApplication")){
+                    errLog += "Cannot find Bluemix Push instance, ensure your APPLICATION ID was set correctly and your phone can successfully connect to the internet.";
+                } else if(statusCode >= 500){
+                    errLog += "Bluemix and/or your Push instance seem to be having problems, please try again later.";
+                }
+
+                Log.e(TAG,errLog);
+                // make push null since registration failed
+                push = null;
+            }
+        };
+
+        // Attempt to register device using response listener created above
+        // Include unique sample user Id instead of Sample UserId in order to send targeted push notifications to specific users
+
+
+        push.registerDeviceWithUserId("Sample UserID",registrationResponselistener);
+    }
+
+
+
+    // If the device has been registered previously, hold push notifications when the app is paused
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (push != null) {
+            push.hold();
+        }
+    }
+
+    // If the device has been registered previously, ensure the client sdk is still using the notification listener from onCreate when app is resumed
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (push != null) {
+            push.listen(notificationListener);
+        }
     }
 
 
@@ -292,6 +439,8 @@ public class MainActivity extends BaseActivity {
         mTabs[position].setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
                 changeFragment(position);
             }
         });

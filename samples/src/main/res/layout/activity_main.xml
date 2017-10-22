@@ -31,6 +31,7 @@
             android:id="@+id/main_tab_qr"
             layout="@layout/item_main_tab"/>
 
+
     </LinearLayout>
 
 </LinearLayout>
