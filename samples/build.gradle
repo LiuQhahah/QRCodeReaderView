@@ -3,15 +3,15 @@ apply plugin: 'android-apt'
 apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    compileSdkVersion 26
+    buildToolsVersion '25.0.0'
     lintOptions {
         abortOnError false
     }
     defaultConfig {
         applicationId "com.example.qr_readerexample"
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 23
 
         multiDexEnabled true
     }
@@ -28,28 +28,37 @@ android {
     }
     productFlavors {
     }
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
 }
+allprojects {
+    repositories {
+        mavenLocal()
+        jcenter()
+        maven {
+            url 'https://maven.google.com'
+        }
+
+    }
+}
+
+
 
 dependencies {
     compile 'com.dlazaro66.qrcodereaderview:qrcodereaderview:2.0.2'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.github.lecho:hellocharts-library:1.5.8@aar'
     compile 'com.scwang.smartrefresh:SmartRefreshLayout:1.0.3'
-    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.android.support:support-v4:23.0.0'
     compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:appcompat-v7:23.3.1'
     compile 'com.jakewharton:butterknife:8.5.1'
     apt 'com.jakewharton:butterknife-compiler:8.5.1'
     compile 'com.orhanobut:logger:2.1.1'
-
     compile 'com.google.android.gms:play-services:9.0.0'
     // Automatically pulls in core SDK
-    compile group: 'com.ibm.mobilefirstplatform.clientsdk.android',
-            name: 'push',
-            version: '3.+',
-            ext: 'aar',
-            transitive: true
-
+    compile 'com.ibm.mobilefirstplatform.clientsdk.android:push:3.+@aar'
 }
 
 apply plugin: 'com.google.gms.google-services'

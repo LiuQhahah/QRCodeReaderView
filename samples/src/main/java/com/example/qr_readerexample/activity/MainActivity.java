@@ -27,7 +27,6 @@ import com.example.qr_readerexample.base.BaseActivity;
 import com.example.qr_readerexample.base.BaseFragment;
 import com.example.qr_readerexample.utils.StatusBarUtil;
 import com.example.qr_readerexample.utils.ToastHelper;
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushException;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationListener;
@@ -126,7 +125,7 @@ public class MainActivity extends BaseActivity {
          * push  set
          */
         // initialize core SDK with IBM Bluemix application Region, TODO: Update region if not using Bluemix US SOUTH
-        BMSClient.getInstance().initialize(this, BMSClient.REGION_US_SOUTH);
+        //BMSClient.getInstance().initialize(this, BMSClient.REGION_US_SOUTH);
 
         // Grabs push client sdk instance
         push = MFPPush.getInstance();
