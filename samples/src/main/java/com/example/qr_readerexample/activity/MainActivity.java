@@ -27,12 +27,6 @@ import com.example.qr_readerexample.base.BaseActivity;
 import com.example.qr_readerexample.base.BaseFragment;
 import com.example.qr_readerexample.utils.StatusBarUtil;
 import com.example.qr_readerexample.utils.ToastHelper;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushException;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationListener;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushResponseListener;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPSimplePushNotification;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,9 +50,9 @@ import db.DataBaseHelper;
 public class MainActivity extends BaseActivity {
 
 
-    private MFPPush push; // Push client
+   /* private MFPPush push; // Push client
     private MFPPushNotificationListener notificationListener; // Notification listener to handle a push sent to the phone
-
+*/
     @BindString(R.string.app_exit)
     String app_exit;
     @BindView(R.id.main_tab_real_data)
@@ -128,7 +122,7 @@ public class MainActivity extends BaseActivity {
         //BMSClient.getInstance().initialize(this, BMSClient.REGION_US_SOUTH);
 
         // Grabs push client sdk instance
-        push = MFPPush.getInstance();
+/*        push = MFPPush.getInstance();
         // Initialize Push client
         // You can find your App Guid and Client Secret by navigating to the Configure section of your Push dashboard, click Mobile Options (Upper Right Hand Corner)
         // TODO: Please replace <APP_GUID> and <CLIENT_SECRET> with a valid App GUID and Client Secret from the Push dashboard Mobile Options
@@ -152,11 +146,11 @@ public class MainActivity extends BaseActivity {
                     }
                 });
             }
-        };
+        };*/
 
 
 
-        registerDevice();
+        //registerDevice();
 
         //绑定广播接收，准备接收来自IOT2040的数据
         bindReceiver();
@@ -194,7 +188,7 @@ public class MainActivity extends BaseActivity {
      * Also includes the example option of UserID association with the registration for very targeted Push notifications.
      *
      */
-    public void registerDevice() {
+   /* public void registerDevice() {
 
         // Checks for null in case registration has failed previously
         if(push==null){
@@ -257,25 +251,25 @@ public class MainActivity extends BaseActivity {
         push.registerDeviceWithUserId("Sample UserID",registrationResponselistener);
     }
 
-
+*/
 
     // If the device has been registered previously, hold push notifications when the app is paused
     @Override
     protected void onPause() {
         super.onPause();
 
-        if (push != null) {
+        /*if (push != null) {
             push.hold();
-        }
+        }*/
     }
 
     // If the device has been registered previously, ensure the client sdk is still using the notification listener from onCreate when app is resumed
     @Override
     protected void onResume() {
         super.onResume();
-        if (push != null) {
+      /*  if (push != null) {
             push.listen(notificationListener);
-        }
+        }*/
     }
 
 

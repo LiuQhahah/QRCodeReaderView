@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
-apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 26
@@ -56,9 +55,6 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.5.1'
     apt 'com.jakewharton:butterknife-compiler:8.5.1'
     compile 'com.orhanobut:logger:2.1.1'
-    compile 'com.google.android.gms:play-services:9.0.0'
     // Automatically pulls in core SDK
-    compile 'com.ibm.mobilefirstplatform.clientsdk.android:push:3.+@aar'
 }
 
-apply plugin: 'com.google.gms.google-services'
