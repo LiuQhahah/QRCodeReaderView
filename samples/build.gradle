@@ -55,6 +55,8 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.5.1'
     apt 'com.jakewharton:butterknife-compiler:8.5.1'
     compile 'com.orhanobut:logger:2.1.1'
-    // Automatically pulls in core SDK
+
+    compile 'com.google.code.gson:gson:2.8.2'
+    compile 'com.zhy:okhttputils:2.3.9'
 }
 

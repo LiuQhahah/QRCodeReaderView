@@ -81,7 +81,7 @@ public class RealDataFragment extends BaseFragment {
     @BindView(R.id.tv_parameter)
     TextView tvParameter;
 
-    String[] chartLabels = {"A0", "A1"};
+    String[] chartLabels = {"temp", "humidity"};
     String[] chartUnits = {" ", "%"};
 
     @Override
@@ -237,7 +237,7 @@ public class RealDataFragment extends BaseFragment {
         int maxNumberOfLines = 2;
         int numberOfPoints = lineLabels.length;
         ValueShape shape = ValueShape.CIRCLE;
-        int[][] randomNumbersTab = new int[maxNumberOfLines][numberOfPoints];
+        float[][] randomNumbersTab = new float[maxNumberOfLines][numberOfPoints];
 
         //设置数据的数值信息
         for (int i = 0; i < maxNumberOfLines; i++) {
@@ -245,7 +245,7 @@ public class RealDataFragment extends BaseFragment {
             Cursor res = myDb.getValue(chartLabels[i], numberOfPoints);
             int j = 0;
             while (res.moveToNext()) {
-                randomNumbersTab[i][j] = Integer.valueOf(res.getString(0));
+                randomNumbersTab[i][j] = Float.valueOf(res.getString(0));
                 Log.i(TAG, "res.getCount():" + res.getCount() + "   numberOfPoints:" + numberOfPoints + " getString ()" + res.getString(0));
                 j++;
             }
@@ -260,6 +260,7 @@ public class RealDataFragment extends BaseFragment {
             List<PointValue> values = new ArrayList<PointValue>();
             for (int j = 0; j < numberOfPoints; ++j) {
                 values.add(new PointValue(j, randomNumbersTab[i][j]));
+                Log.i(TAG,"randomNumbersTab:"+randomNumbersTab[i][j]);
             }
             Line line = new Line(values);
             line.setColor(chartColors[i]);

@@ -27,9 +27,12 @@ import com.example.qr_readerexample.base.BaseActivity;
 import com.example.qr_readerexample.base.BaseFragment;
 import com.example.qr_readerexample.utils.StatusBarUtil;
 import com.example.qr_readerexample.utils.ToastHelper;
+import com.google.gson.Gson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -44,11 +47,27 @@ import java.util.concurrent.Executors;
 
 import butterknife.BindString;
 import butterknife.BindView;
+import db.AllData;
+import db.CloudantData;
 import db.DataBaseHelper;
+import okhttp3.CacheControl;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 
 public class MainActivity extends BaseActivity {
 
+    private final OkHttpClient client = new OkHttpClient();
+    private final Gson gson = new Gson();
+
+
+    private final String url = "https://fb2e1a82-8890-4143-810d-e5c79f44a611-bluemix.cloudant.com/" +
+            "nodered/_all_docs?include_docs=true&limit=10";
+    private String humidity;
+    private String temp;
 
    /* private MFPPush push; // Push client
     private MFPPushNotificationListener notificationListener; // Notification listener to handle a push sent to the phone
@@ -177,6 +196,8 @@ public class MainActivity extends BaseActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
                     MY_PERMISSION_REQUEST_CAMERA);
         }
+
+        getCloudantData();
 
 
     }
@@ -517,5 +538,43 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    private void getCloudantData(){
+        Request request   = new Request.Builder()
+                .url(url)
+                .cacheControl(CacheControl.FORCE_NETWORK)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(TAG,"okhttp is request error");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.i(TAG,"okhttp is request success!");
+                //获取服务器返回的json字符串
+                String responseString = response.body().string();
+
+                //使用Gson 解析json字符串
+                AllData allData = gson.fromJson(responseString, AllData.class);
+
+                // 将"rows"信息将数据传输到CloudantData中，rows有100个数组组成
+                List<CloudantData> cloudantDataList = allData.getRows();
+
+                Log.i(TAG,"cloudantDataList size:"+cloudantDataList.size());
+                for (int i= 0;i<cloudantDataList.size();i++){
+
+                    //AddData(sensordata, "A0");
+                    final String temp = cloudantDataList.get(i).doc.payload.d.getTemp();
+                    final String humidity = cloudantDataList.get(i).doc.payload.d.getHumidity();
+                    AddData(temp, "temp");
+                    AddData(humidity, "humidity");
+                    Log.i(TAG,"temp:"+temp+", humidity:"+humidity);
+                }
+            }
+        });
     }
 }

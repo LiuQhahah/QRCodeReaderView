@@ -16,6 +16,8 @@ import java.util.ArrayList;
 /**
  * Created by Jason Zhu on 2017-04-24.
  * Email: cloud_happy@163.com
+ *
+ * implements Runnable  通过开启子线程，进行监听
  */
 
 public class TcpServer implements Runnable{
