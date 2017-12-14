@@ -117,9 +117,13 @@ public class TcpServer implements Runnable{
                         rcvMsg = new String(buff,0,rcvLen,"utf-8");
                         Log.i(TAG, "run:收到消息: " + rcvMsg+"长度为："+rcvLen);
 
+
+                        //显示意图，将结束的数据rcvMsg一并作为意图。通过广播的形式传递意图，
+                        // 并且传递到MainActivity中
                         Intent intent =new Intent();
                         intent.setAction("tcpServerReceiver");
                         intent.putExtra("tcpServerReceiver",rcvMsg);
+
                         MainActivity.context.sendBroadcast(intent);//将消息发送给主界面
                         if (rcvMsg.equals("QuitServer")){
                             isRun = false;

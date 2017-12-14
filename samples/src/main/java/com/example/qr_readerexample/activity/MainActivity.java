@@ -297,6 +297,7 @@ public class MainActivity extends BaseActivity {
     private void startTCP() {
         Log.i(TAG, "ip address is :" + getHostIP() + "\n  PORT = 9999");
         tcpServer = new TcpServer(PORT);
+        //异步执行
         exec.execute(tcpServer);
     }
 
@@ -347,6 +348,7 @@ public class MainActivity extends BaseActivity {
             String mAction = intent.getAction();
             switch (mAction) {
                 case "tcpServerReceiver":
+                    //通过intent传递数据
                     String msg = intent.getStringExtra("tcpServerReceiver");
 
                     Message message = Message.obtain();
