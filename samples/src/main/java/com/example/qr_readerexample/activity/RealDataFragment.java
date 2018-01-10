@@ -164,7 +164,8 @@ public class RealDataFragment extends BaseFragment {
 
                 Log.i(TAG,"humidity string :"+mSR.getHumidity().toString());
                if (!mSR.getHumidity().isEmpty()) {
-                    tvMinValue.setText(" 当前湿度值：" + mSR.getHumidity().get(0));
+                    tvMinValue.setText(" 当前湿度值：" + mSR.getHumidity().get(mSR.getHumidity().size()-1)+1);
+                    Log.i(TAG," 当前湿度值：" + mSR.getHumidity().get(mSR.getHumidity().size()-1)+";size"+mSR.getHumidity().size());
                 }
 
                 drawLine();

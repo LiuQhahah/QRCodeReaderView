@@ -11,8 +11,13 @@ package com.example.qr_readerexample.utils;
 
 public class C {
 
-	public static final String url =
-			"https://fb2e1a82-8890-4143-810d-e5c79f44a611-bluemix.cloudant.com/nodered/_all_docs?include_docs=true&limit=10";
+	//public static final String url ="https://togelincentiringlybenell:2052a79f2ad0a76ae1c21b0b39ba6fc2a0d1ec26@d2b78f4c-618b-471b-a633-dd03453a4971-bluemix.cloudant.com/nodered/_all_docs?include_docs=true&limit=10";
+	public static final String url ="https://ndenticemantrucablearies:1d30d0c4e86f29b2b460ee99e5f2da81398f90d8@d2b78f4c-618b-471b-a633-dd03453a4971-bluemix.cloudant.com/iot2040/_all_docs?include_docs=true&limit=10";
+
+
+
+	//https://togelincentiringlybenell:$PASSWORD@$ACCOUNT.cloudant.com/
+
 
 	static final String prefs = "Prefs";
 	static final String sbh = "status_bar_height";
@@ -31,7 +36,7 @@ public class C {
 	static final String actionStartRecord = "actionRecord";
 	static final String actionStopRecord = "actionStop";
 	static final String actionClose = "actionClose";
-	static final String actionSetIconRecord = "actionSetIconRecord";
+	static final String actionSetIconRecord = "actionSetconRecord";
 	static final String actionDeadProcess = "actionRemoveProcess";
 	static final String actionFinishActivity = "actionCloseActivity";
 

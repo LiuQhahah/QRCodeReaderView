@@ -1,5 +1,7 @@
 package db;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -24,6 +26,7 @@ import okhttp3.OkHttpClient;
 
 
     public List<CloudantData> getRows() {
+        Log.i(TAG,"rows:"+rows);
         return rows;
     }
 

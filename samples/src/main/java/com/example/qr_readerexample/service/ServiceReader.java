@@ -1,11 +1,8 @@
 package com.example.qr_readerexample.service;
 
-import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Build;
-import android.os.Debug;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -13,14 +10,10 @@ import android.util.Log;
 import com.example.qr_readerexample.utils.C;
 import com.google.gson.Gson;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import db.AllData;
 import db.CloudantData;
@@ -36,7 +29,7 @@ import okhttp3.Response;
  */
 
 public class ServiceReader extends Service {
-    private List<String> temp,humidity;
+    public List<String> temp,humidity;
 
     public List<String> getTemp() {
         return temp;
@@ -66,9 +59,6 @@ public class ServiceReader extends Service {
             // However the ViewGraphic is drew with a Handler because the drawing code must be executed in the UI thread.
             Thread thisThread = Thread.currentThread();
             while (readThread == thisThread) {
-
-
-
                 try {
 
                     //线程睡眠的时间，为图表中设置的间隔时间
@@ -78,11 +68,6 @@ public class ServiceReader extends Service {
                 } catch (InterruptedException e) {
                     break;
                 }
-
-                // The Runnable can be suspended and resumed with the below code:
-//				threadSuspended = !threadSuspended;
-//				if (!threadSuspended)
-//					notify();
             }
         }
 
@@ -122,8 +107,10 @@ public class ServiceReader extends Service {
     private void getCloudantData(){
         Request request   = new Request.Builder()
                 .url(C.url)
+
                 .cacheControl(CacheControl.FORCE_NETWORK)
                 .build();
+
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -137,27 +124,30 @@ public class ServiceReader extends Service {
                 //获取服务器返回的json字符串
                 String responseString = response.body().string();
 
-               // Log.i(TAG,"responseString:"+responseString+"temp.size:"+temp.size());
-                // 接收数据超过200,则自动清零
-                while (temp.size() >= maxSamples) {
-                    temp.remove(temp.size()-1);
-                    humidity.remove(humidity.size()-1);
+                if(!responseString.contains("error")) {
+                    Log.i(TAG, "responseString:" + responseString + "temp.size:" + temp.size());
+                    // 接收数据超过200,则删除最早的一个
+                    while (temp.size() >= maxSamples) {
+                        temp.remove(temp.size() - 1);
+                        humidity.remove(humidity.size() - 1);
 
+                    }
+                    //使用Gson 解析json字符串
+                    AllData allData = gson.fromJson(responseString, AllData.class);
+
+                    // 将"rows"信息将数据传输到CloudantData中，rows有100个数组组成
+                    List<CloudantData> cloudantDataList = allData.getRows();
+
+                    for (int i = 0; i < cloudantDataList.size(); i++) {
+
+                        temp.add(cloudantDataList.get(i).doc.payload.d.getTemp());
+                        humidity.add(cloudantDataList.get(i).doc.payload.d.getHumidity());
+                        Log.i(TAG, "temp:" + temp + ", humidity:" + humidity);
+                    }
+
+                }else {
+                    Log.e(TAG,"cannot get data:reason:"+responseString);
                 }
-                //使用Gson 解析json字符串
-                AllData allData = gson.fromJson(responseString, AllData.class);
-
-                // 将"rows"信息将数据传输到CloudantData中，rows有100个数组组成
-                List<CloudantData> cloudantDataList = allData.getRows();
-
-                for (int i= 0;i<cloudantDataList.size();i++){
-
-                    temp.add(cloudantDataList.get(i).doc.payload.d.getTemp());
-                    humidity.add(cloudantDataList.get(i).doc.payload.d.getHumidity());
-                    Log.i(TAG,"temp:"+temp+", humidity:"+humidity);
-                }
-
-
 
             }
         });

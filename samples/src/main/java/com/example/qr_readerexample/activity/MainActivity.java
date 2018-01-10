@@ -60,15 +60,6 @@ import okhttp3.Response;
 
 public class MainActivity extends BaseActivity {
 
-    private final OkHttpClient client = new OkHttpClient();
-    private final Gson gson = new Gson();
-
-
-    private final String url = "https://fb2e1a82-8890-4143-810d-e5c79f44a611-bluemix.cloudant.com/" +
-            "nodered/_all_docs?include_docs=true&limit=10";
-    private String humidity;
-    private String temp;
-
    /* private MFPPush push; // Push client
     private MFPPushNotificationListener notificationListener; // Notification listener to handle a push sent to the phone
 */
@@ -113,7 +104,6 @@ public class MainActivity extends BaseActivity {
 
     private static final int MY_PERMISSION_REQUEST_CAMERA = 0;
 
-    private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     private final MyHandler myHandler = new MyHandler(this);
 
     @SuppressLint("StaticFieldLeak")
@@ -170,8 +160,6 @@ public class MainActivity extends BaseActivity {
 
         //registerDevice();
 
-        //绑定广播接收，准备接收来自IOT2040的数据
-        bindReceiver();
 
         Log.i(TAG, "app_exit " + app_exit);
 
@@ -196,10 +184,7 @@ public class MainActivity extends BaseActivity {
                     MY_PERMISSION_REQUEST_CAMERA);
         }
 
-        getCloudantData();
-
-
-    }
+     }
 
     /**
      * Called when the register device button is pressed.
@@ -293,71 +278,10 @@ public class MainActivity extends BaseActivity {
     }
 
 
-  /*  private void startTCP() {
-        Log.i(TAG, "ip address is :" + getHostIP() + "\n  PORT = 9999");
-        tcpServer = new TcpServer(PORT);
-        //异步执行
-        exec.execute(tcpServer);
-    }*/
 
-    /**
-     * 获取ip地址
-     *
-     * @return
-     */
-    public String getHostIP() {
 
-        String hostIp = null;
-        try {
-            Enumeration nis = NetworkInterface.getNetworkInterfaces();
-            InetAddress ia = null;
-            while (nis.hasMoreElements()) {
-                NetworkInterface ni = (NetworkInterface) nis.nextElement();
-                Enumeration<InetAddress> ias = ni.getInetAddresses();
-                while (ias.hasMoreElements()) {
-                    ia = ias.nextElement();
-                    if (ia instanceof Inet6Address) {
-                        continue;// skip ipv6
-                    }
-                    String ip = ia.getHostAddress();
-                    if (!"127.0.0.1".equals(ip)) {
-                        hostIp = ia.getHostAddress();
-                        break;
-                    }
-                }
-            }
-        } catch (SocketException e) {
-            Log.i(TAG, "SocketException");
-            e.printStackTrace();
-        }
-        Log.i(TAG, "IP ADDRESS :" + hostIp);
-        return hostIp;
 
-    }
 
-    private void bindReceiver() {
-        IntentFilter intentFilter = new IntentFilter("tcpServerReceiver");
-        registerReceiver(myBroadcastReceiver, intentFilter);
-    }
-
-    private class MyBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String mAction = intent.getAction();
-            switch (mAction) {
-                case "tcpServerReceiver":
-                    //通过intent传递数据
-                    String msg = intent.getStringExtra("tcpServerReceiver");
-
-                    Message message = Message.obtain();
-                    message.what = 1;
-                    message.obj = msg;
-                    myHandler.sendMessage(message);
-                    break;
-            }
-        }
-    }
 
     /**
      * 初始化底部4个导航按钮
@@ -541,41 +465,5 @@ public class MainActivity extends BaseActivity {
         super.onDestroy();
     }
 
-    private void getCloudantData(){
-        Request request   = new Request.Builder()
-                .url(url)
-                .cacheControl(CacheControl.FORCE_NETWORK)
-                .build();
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.e(TAG,"okhttp is request error");
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Log.i(TAG,"okhttp is request success!");
-                //获取服务器返回的json字符串
-                String responseString = response.body().string();
-
-                //使用Gson 解析json字符串
-                AllData allData = gson.fromJson(responseString, AllData.class);
-
-                // 将"rows"信息将数据传输到CloudantData中，rows有100个数组组成
-                List<CloudantData> cloudantDataList = allData.getRows();
-
-                Log.i(TAG,"cloudantDataList size:"+cloudantDataList.size());
-                for (int i= 0;i<cloudantDataList.size();i++){
-
-                    //AddData(sensordata, "A0");
-                    final String temp = cloudantDataList.get(i).doc.payload.d.getTemp();
-                    final String humidity = cloudantDataList.get(i).doc.payload.d.getHumidity();
-                    AddData(temp, "temp");
-                    AddData(humidity, "humidity");
-                    Log.i(TAG,"temp:"+temp+", humidity:"+humidity);
-                }
-            }
-        });
-    }
 }
