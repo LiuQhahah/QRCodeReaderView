@@ -22,9 +22,9 @@ import android.widget.TextView;
 
 import com.example.qr_readerexample.App;
 import com.example.qr_readerexample.R;
-import com.example.qr_readerexample.TcpServer;
 import com.example.qr_readerexample.base.BaseActivity;
 import com.example.qr_readerexample.base.BaseFragment;
+import com.example.qr_readerexample.service.ServiceReader;
 import com.example.qr_readerexample.utils.StatusBarUtil;
 import com.example.qr_readerexample.utils.ToastHelper;
 import com.google.gson.Gson;
@@ -98,7 +98,7 @@ public class MainActivity extends BaseActivity {
     private QRFragment qrFragment;
 
 
-    private static TcpServer tcpServer = null;
+    //private static TcpServer tcpServer = null;
     private static final int PORT = 9999;
     ExecutorService exec = Executors.newCachedThreadPool();
     private List<Activity> activityList;
@@ -129,7 +129,6 @@ public class MainActivity extends BaseActivity {
         StatusBarUtil.darkMode(this);
 
         context = this;
-
 
         //registerDevice();
 
@@ -188,7 +187,7 @@ public class MainActivity extends BaseActivity {
         changeFragment(currentTabIndex);
 
 
-        startTCP();
+        //startTCP();
 
 
         if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -294,12 +293,12 @@ public class MainActivity extends BaseActivity {
     }
 
 
-    private void startTCP() {
+  /*  private void startTCP() {
         Log.i(TAG, "ip address is :" + getHostIP() + "\n  PORT = 9999");
         tcpServer = new TcpServer(PORT);
         //异步执行
         exec.execute(tcpServer);
-    }
+    }*/
 
     /**
      * 获取ip地址

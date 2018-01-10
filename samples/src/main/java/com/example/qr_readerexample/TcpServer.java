@@ -20,6 +20,7 @@ import java.util.ArrayList;
  * implements Runnable  通过开启子线程，进行监听
  */
 
+/*
 public class TcpServer implements Runnable{
     private String TAG = "TcpServer";
     private int port = 1234;
@@ -147,3 +148,4 @@ public class TcpServer implements Runnable{
     }
 
 }
+*/

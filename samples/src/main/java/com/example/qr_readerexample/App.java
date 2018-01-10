@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class App extends Application {
-    private static TcpServer tcpServer = null;
+    //private static TcpServer tcpServer = null;
     private static final int PORT = 9999;
     ExecutorService exec = Executors.newCachedThreadPool();
     private List<Activity> activityList;

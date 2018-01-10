@@ -3,6 +3,7 @@ package com.example.qr_readerexample.service;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Debug;
 import android.os.IBinder;
@@ -36,13 +37,28 @@ import okhttp3.Response;
 
 public class ServiceReader extends Service {
     private List<String> temp,humidity;
+
+    public List<String> getTemp() {
+        return temp;
+    }
+
+    public void setTemp(List<String> temp) {
+        this.temp = temp;
+    }
+
+    public List<String> getHumidity() {
+        return humidity;
+    }
+
+    public void setHumidity(List<String> humidity) {
+        this.humidity = humidity;
+    }
+
     private final OkHttpClient client = new OkHttpClient();
     private final Gson gson = new Gson();
-    private int maxSamples= 2000;
+    private int maxSamples= 200;
 
     private static final String TAG = "ServiceReader";
-    private final String url = "https://fb2e1a82-8890-4143-810d-e5c79f44a611-bluemix.cloudant.com/" +
-            "nodered/_all_docs?include_docs=true&limit=10";
     private Runnable readRunnable = new Runnable() { // http://docs.oracle.com/javase/8/docs/technotes/guides/concurrency/threadPrimitiveDeprecation.html
         @Override
         public void run() {
@@ -50,15 +66,15 @@ public class ServiceReader extends Service {
             // However the ViewGraphic is drew with a Handler because the drawing code must be executed in the UI thread.
             Thread thisThread = Thread.currentThread();
             while (readThread == thisThread) {
-                getCloudantData();
+
+
+
                 try {
 
                     //线程睡眠的时间，为图表中设置的间隔时间
                     Thread.sleep(1000);
-/*					synchronized (this) {
-						while (readThread == thisThread && threadSuspended)
-							wait();
-					}*/
+                    getCloudantData();
+                    Log.i(TAG,"humidity string :"+getHumidity().toString());
                 } catch (InterruptedException e) {
                     break;
                 }
@@ -84,12 +100,28 @@ public class ServiceReader extends Service {
 
         temp = new ArrayList<String>(maxSamples);
         humidity = new ArrayList<String>(maxSamples);
+        readThread.start();
         super.onCreate();
+    }
+
+    @Override
+    public void onDestroy() {
+
+
+        try {
+            readThread.interrupt();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        synchronized (this) {
+            readThread = null;
+            notify();
+        }
     }
 
     private void getCloudantData(){
         Request request   = new Request.Builder()
-                .url(url)
+                .url(C.url)
                 .cacheControl(CacheControl.FORCE_NETWORK)
                 .build();
 
@@ -105,8 +137,8 @@ public class ServiceReader extends Service {
                 //获取服务器返回的json字符串
                 String responseString = response.body().string();
 
-
-                // 接收数据超过2000,则自动清零
+               // Log.i(TAG,"responseString:"+responseString+"temp.size:"+temp.size());
+                // 接收数据超过200,则自动清零
                 while (temp.size() >= maxSamples) {
                     temp.remove(temp.size()-1);
                     humidity.remove(humidity.size()-1);
@@ -118,16 +150,15 @@ public class ServiceReader extends Service {
                 // 将"rows"信息将数据传输到CloudantData中，rows有100个数组组成
                 List<CloudantData> cloudantDataList = allData.getRows();
 
-                Log.i(TAG,"cloudantDataList size:"+cloudantDataList.size());
                 for (int i= 0;i<cloudantDataList.size();i++){
 
-                    //AddData(sensordata, "A0");
-                    //final String temp = cloudantDataList.get(i).doc.payload.d.getTemp();
-                    //final String humidity = cloudantDataList.get(i).doc.payload.d.getHumidity();
                     temp.add(cloudantDataList.get(i).doc.payload.d.getTemp());
                     humidity.add(cloudantDataList.get(i).doc.payload.d.getHumidity());
                     Log.i(TAG,"temp:"+temp+", humidity:"+humidity);
                 }
+
+
+
             }
         });
     }
@@ -139,6 +170,13 @@ public class ServiceReader extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return new ServiceReaderDataBinder();
     }
+
+    public class ServiceReaderDataBinder extends Binder {
+        public ServiceReader getService() {
+            return ServiceReader.this;
+        }
+    }
+
 }

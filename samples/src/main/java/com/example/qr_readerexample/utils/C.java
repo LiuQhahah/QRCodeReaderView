@@ -11,6 +11,9 @@ package com.example.qr_readerexample.utils;
 
 public class C {
 
+	public static final String url =
+			"https://fb2e1a82-8890-4143-810d-e5c79f44a611-bluemix.cloudant.com/nodered/_all_docs?include_docs=true&limit=10";
+
 	static final String prefs = "Prefs";
 	static final String sbh = "status_bar_height";
 	static final String nbh = "navigation_bar_height";

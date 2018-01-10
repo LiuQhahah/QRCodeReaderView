@@ -75,7 +75,7 @@ public class DecoderActivity extends AppCompatActivity
     private CheckBox cbQR;//打开二维码扫描界面
     private static final int PORT = 9999;
     public static boolean  isdatavisible ;
-    private static TcpServer tcpServer = null;
+    //private static TcpServer tcpServer = null;
     private final MyHandler myHandler = new MyHandler(this);
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     @SuppressLint("StaticFieldLeak")
@@ -120,7 +120,7 @@ public class DecoderActivity extends AppCompatActivity
         myDb = new DataBaseHelper(this);
 
         //暂停TCP通信
-        startTCP();
+        //startTCP();
 
     }
 
@@ -162,12 +162,12 @@ public class DecoderActivity extends AppCompatActivity
 
     }
 
-    private void startTCP() {
+  /*  private void startTCP() {
        Log.i(TAG,"ip address is :"+getHostIP()+"\n  PORT = 9999");
         tcpServer = new TcpServer(PORT);
         exec.execute(tcpServer);
     }
-
+*/
     private static void AddData(String data,String devicename) {
         String systime = getsystime();
         boolean isInserted = myDb.insertData(systime,data,devicename);
@@ -376,7 +376,7 @@ public class DecoderActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         //应用销毁时，关闭TCP通讯
-        tcpServer.closeSelf();
+       // tcpServer.closeSelf();
         super.onDestroy();
     }
 
